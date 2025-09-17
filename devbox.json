@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+  "packages": ["go@1.25", "golangci-lint@latest"],
+  "shell": {
+    "init_hook": [
+      "export PATH=$PATH:$(go env GOPATH)/bin",
+      "echo 'Go binaries added to PATH'"
+    ],
+    "scripts": {
+      "test": ["echo \"Error: no test specified\" && exit 1"]
+    }
+  }
+}

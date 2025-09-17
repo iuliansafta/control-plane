@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package controlplane;
+option go_package = "github.com/iuliansafta/iulian-cloud-controller/api/proto";
+
+service ControlPlane {
+    rpc DeployApplication(DeployRequest) returns (DeployResponse);
+    rpc DeleteApplication(DeleteRequest) returns (DeleteResponse);
+}
+
+message DeployRequest {
+    string name = 1;
+    string image = 2;
+    int32 replicas = 3;
+    double cpu = 4;
+    int64 memory = 5;
+    string region = 6;
+    map<string, string> labels = 7;
+}
+
+message DeployResponse {
+    string deployment_id = 1;
+    string status = 2;
+    string message = 3;
+}
+
+message DeleteRequest {
+    string deployment_id = 1;
+    string container_id = 2;
+}
+
+message DeleteResponse {
+    bool success = 1;
+    string message = 2;
+}
