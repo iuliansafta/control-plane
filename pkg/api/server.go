@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"maps"
 
-	pb "github.com/iuliansafta/iulian-cloud-controller/api/proto"
-	"github.com/iuliansafta/iulian-cloud-controller/pkg/nomad"
-	"github.com/iuliansafta/iulian-cloud-controller/pkg/utils"
+	pb "github.com/iuliansafta/control-plane/api/proto"
+	"github.com/iuliansafta/control-plane/pkg/nomad"
+	"github.com/iuliansafta/control-plane/pkg/utils"
 )
 
 type ApplicationService struct {

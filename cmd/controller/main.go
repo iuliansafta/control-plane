@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	pb "github.com/iuliansafta/iulian-cloud-controller/api/proto"
-	"github.com/iuliansafta/iulian-cloud-controller/pkg/api"
-	"github.com/iuliansafta/iulian-cloud-controller/pkg/nomad"
+	pb "github.com/iuliansafta/control-plane/api/proto"
+	"github.com/iuliansafta/control-plane/pkg/api"
+	"github.com/iuliansafta/control-plane/pkg/nomad"
 	"google.golang.org/grpc"
 )
 

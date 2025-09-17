@@ -6,7 +6,7 @@ import (
 	"time"
 
 	nmd "github.com/hashicorp/nomad/api"
-	"github.com/iuliansafta/iulian-cloud-controller/pkg/utils"
+	"github.com/iuliansafta/control-plane/pkg/utils"
 )
 
 type Resources struct {

@@ -71,23 +71,20 @@ func (NetworkMode) EnumDescriptor() ([]byte, []int) {
 }
 
 type TraefikConfig struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Enable     bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
-	Host       string                 `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
-	Entrypoint string                 `protobuf:"bytes,3,opt,name=entrypoint,proto3" json:"entrypoint,omitempty"`
-	// SSL Configuration
-	EnableSsl    bool   `protobuf:"varint,4,opt,name=enable_ssl,json=enableSsl,proto3" json:"enable_ssl,omitempty"`
-	SslHost      string `protobuf:"bytes,5,opt,name=ssl_host,json=sslHost,proto3" json:"ssl_host,omitempty"`
-	CertResolver string `protobuf:"bytes,6,opt,name=cert_resolver,json=certResolver,proto3" json:"cert_resolver,omitempty"`
-	// Load Balancer Configuration
-	HealthCheckPath     string `protobuf:"bytes,7,opt,name=health_check_path,json=healthCheckPath,proto3" json:"health_check_path,omitempty"`
-	HealthCheckInterval string `protobuf:"bytes,8,opt,name=health_check_interval,json=healthCheckInterval,proto3" json:"health_check_interval,omitempty"`
-	// Additional router options
-	PathPrefix    string            `protobuf:"bytes,9,opt,name=path_prefix,json=pathPrefix,proto3" json:"path_prefix,omitempty"`
-	Middlewares   []string          `protobuf:"bytes,10,rep,name=middlewares,proto3" json:"middlewares,omitempty"`
-	CustomLabels  map[string]string `protobuf:"bytes,11,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Enable              bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
+	Host                string                 `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
+	Entrypoint          string                 `protobuf:"bytes,3,opt,name=entrypoint,proto3" json:"entrypoint,omitempty"`
+	EnableSsl           bool                   `protobuf:"varint,4,opt,name=enable_ssl,json=enableSsl,proto3" json:"enable_ssl,omitempty"`
+	SslHost             string                 `protobuf:"bytes,5,opt,name=ssl_host,json=sslHost,proto3" json:"ssl_host,omitempty"`
+	CertResolver        string                 `protobuf:"bytes,6,opt,name=cert_resolver,json=certResolver,proto3" json:"cert_resolver,omitempty"`
+	HealthCheckPath     string                 `protobuf:"bytes,7,opt,name=health_check_path,json=healthCheckPath,proto3" json:"health_check_path,omitempty"`
+	HealthCheckInterval string                 `protobuf:"bytes,8,opt,name=health_check_interval,json=healthCheckInterval,proto3" json:"health_check_interval,omitempty"`
+	PathPrefix          string                 `protobuf:"bytes,9,opt,name=path_prefix,json=pathPrefix,proto3" json:"path_prefix,omitempty"`
+	Middlewares         []string               `protobuf:"bytes,10,rep,name=middlewares,proto3" json:"middlewares,omitempty"`
+	CustomLabels        map[string]string      `protobuf:"bytes,11,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *TraefikConfig) Reset() {
@@ -207,7 +204,7 @@ type DeployRequest struct {
 	Region        string                 `protobuf:"bytes,6,opt,name=region,proto3" json:"region,omitempty"`
 	Labels        map[string]string      `protobuf:"bytes,7,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Traefik       *TraefikConfig         `protobuf:"bytes,8,opt,name=traefik,proto3" json:"traefik,omitempty"`
-	NetworkMode   NetworkMode            `protobuf:"varint,9,opt,name=network_mode,json=networkMode,proto3,enum=controlplane.NetworkMode" json:"network_mode,omitempty"` // Network mode for the deployment
+	NetworkMode   NetworkMode            `protobuf:"varint,9,opt,name=network_mode,json=networkMode,proto3,enum=controlplane.NetworkMode" json:"network_mode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -523,7 +520,7 @@ const file_api_proto_controlplane_proto_rawDesc = "" +
 	"\x13NETWORK_MODE_BRIDGE\x10\x022\xae\x01\n" +
 	"\fControlPlane\x12N\n" +
 	"\x11DeployApplication\x12\x1b.controlplane.DeployRequest\x1a\x1c.controlplane.DeployResponse\x12N\n" +
-	"\x11DeleteApplication\x12\x1b.controlplane.DeleteRequest\x1a\x1c.controlplane.DeleteResponseB:Z8github.com/iuliansafta/iulian-cloud-controller/api/protob\x06proto3"
+	"\x11DeleteApplication\x12\x1b.controlplane.DeleteRequest\x1a\x1c.controlplane.DeleteResponseB0Z.github.com/iuliansafta/control-plane/api/protob\x06proto3"
 
 var (
 	file_api_proto_controlplane_proto_rawDescOnce sync.Once
