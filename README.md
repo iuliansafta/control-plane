@@ -4,9 +4,7 @@ A Go-based control plane service for deploying and managing containerized applic
 
 ## Architecture
 
-```
-
-```
+![Architecture](./docs/diagram.png)
 
 **Components:**
 - **gRPC Server**: Accepts deployment requests and translates them to Nomad job specifications
@@ -19,8 +17,13 @@ A Go-based control plane service for deploying and managing containerized applic
 
 - **Go >1.24+** for building
 - **HashiCorp Nomad** running locally or remotely
-- **Docker** for container runtime
+- **Docker/Container** for container runtime
 - **Devbox** (optional, for development environment)
+
+
+### Prerequisites Linux
+- **Refer to the Ansible repository** ![Ansible Metal](https://github.com/iuliansafta/ansible-metal)
+
 
 ### Installation
 
