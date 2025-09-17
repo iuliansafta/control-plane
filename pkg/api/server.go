@@ -22,12 +22,25 @@ func NewApplicationService(orchClient *nomad.NomadClient) *ApplicationService {
 }
 
 func (s *ApplicationService) DeployApplication(ctx context.Context, req *pb.DeployRequest) (*pb.DeployResponse, error) {
+	networkMode := "host"
+	switch req.NetworkMode {
+	case pb.NetworkMode_NETWORK_MODE_BRIDGE:
+		networkMode = "bridge"
+	case pb.NetworkMode_NETWORK_MODE_HOST:
+		networkMode = "host"
+	default:
+		networkMode = "host"
+	}
+
 	jobTemplate := &nomad.JobTemplate{
-		Name:      req.Name,
-		Image:     req.Image,
-		Instances: int(req.Replicas),
+		Name:          req.Name,
+		Image:         req.Image,
+		Instances:     int(req.Replicas),
+		Region:        req.Region,
+		DisableConsul: false,
+		NetworkMode:   networkMode,
 		ResourcesSpec: nomad.Resources{
-			CPU:      utils.IntPtr(int(req.Cpu * 100)),
+			CPU:      utils.IntPtr(int(req.Cpu * 10)), // Reduced CPU allocation
 			MemoryMB: utils.IntPtr(int(req.Memory)),
 		},
 		Environment: make(map[string]string),

@@ -21,6 +21,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type NetworkMode int32
+
+const (
+	NetworkMode_NETWORK_MODE_UNSPECIFIED NetworkMode = 0 // Defaults to HOST
+	NetworkMode_NETWORK_MODE_HOST        NetworkMode = 1
+	NetworkMode_NETWORK_MODE_BRIDGE      NetworkMode = 2
+)
+
+// Enum value maps for NetworkMode.
+var (
+	NetworkMode_name = map[int32]string{
+		0: "NETWORK_MODE_UNSPECIFIED",
+		1: "NETWORK_MODE_HOST",
+		2: "NETWORK_MODE_BRIDGE",
+	}
+	NetworkMode_value = map[string]int32{
+		"NETWORK_MODE_UNSPECIFIED": 0,
+		"NETWORK_MODE_HOST":        1,
+		"NETWORK_MODE_BRIDGE":      2,
+	}
+)
+
+func (x NetworkMode) Enum() *NetworkMode {
+	p := new(NetworkMode)
+	*p = x
+	return p
+}
+
+func (x NetworkMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NetworkMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_proto_controlplane_proto_enumTypes[0].Descriptor()
+}
+
+func (NetworkMode) Type() protoreflect.EnumType {
+	return &file_api_proto_controlplane_proto_enumTypes[0]
+}
+
+func (x NetworkMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NetworkMode.Descriptor instead.
+func (NetworkMode) EnumDescriptor() ([]byte, []int) {
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{0}
+}
+
 type TraefikConfig struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	Enable     bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
@@ -158,6 +207,7 @@ type DeployRequest struct {
 	Region        string                 `protobuf:"bytes,6,opt,name=region,proto3" json:"region,omitempty"`
 	Labels        map[string]string      `protobuf:"bytes,7,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Traefik       *TraefikConfig         `protobuf:"bytes,8,opt,name=traefik,proto3" json:"traefik,omitempty"`
+	NetworkMode   NetworkMode            `protobuf:"varint,9,opt,name=network_mode,json=networkMode,proto3,enum=controlplane.NetworkMode" json:"network_mode,omitempty"` // Network mode for the deployment
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -246,6 +296,13 @@ func (x *DeployRequest) GetTraefik() *TraefikConfig {
 		return x.Traefik
 	}
 	return nil
+}
+
+func (x *DeployRequest) GetNetworkMode() NetworkMode {
+	if x != nil {
+		return x.NetworkMode
+	}
+	return NetworkMode_NETWORK_MODE_UNSPECIFIED
 }
 
 type DeployResponse struct {
@@ -436,7 +493,7 @@ const file_api_proto_controlplane_proto_rawDesc = "" +
 	"\rcustom_labels\x18\v \x03(\v2-.controlplane.TraefikConfig.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xca\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x88\x03\n" +
 	"\rDeployRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12\x1a\n" +
@@ -445,7 +502,8 @@ const file_api_proto_controlplane_proto_rawDesc = "" +
 	"\x06memory\x18\x05 \x01(\x03R\x06memory\x12\x16\n" +
 	"\x06region\x18\x06 \x01(\tR\x06region\x12?\n" +
 	"\x06labels\x18\a \x03(\v2'.controlplane.DeployRequest.LabelsEntryR\x06labels\x125\n" +
-	"\atraefik\x18\b \x01(\v2\x1b.controlplane.TraefikConfigR\atraefik\x1a9\n" +
+	"\atraefik\x18\b \x01(\v2\x1b.controlplane.TraefikConfigR\atraefik\x12<\n" +
+	"\fnetwork_mode\x18\t \x01(\x0e2\x19.controlplane.NetworkModeR\vnetworkMode\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"g\n" +
@@ -458,7 +516,11 @@ const file_api_proto_controlplane_proto_rawDesc = "" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\"D\n" +
 	"\x0eDeleteResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2\xae\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage*[\n" +
+	"\vNetworkMode\x12\x1c\n" +
+	"\x18NETWORK_MODE_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11NETWORK_MODE_HOST\x10\x01\x12\x17\n" +
+	"\x13NETWORK_MODE_BRIDGE\x10\x022\xae\x01\n" +
 	"\fControlPlane\x12N\n" +
 	"\x11DeployApplication\x12\x1b.controlplane.DeployRequest\x1a\x1c.controlplane.DeployResponse\x12N\n" +
 	"\x11DeleteApplication\x12\x1b.controlplane.DeleteRequest\x1a\x1c.controlplane.DeleteResponseB:Z8github.com/iuliansafta/iulian-cloud-controller/api/protob\x06proto3"
@@ -475,29 +537,32 @@ func file_api_proto_controlplane_proto_rawDescGZIP() []byte {
 	return file_api_proto_controlplane_proto_rawDescData
 }
 
+var file_api_proto_controlplane_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_api_proto_controlplane_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_api_proto_controlplane_proto_goTypes = []any{
-	(*TraefikConfig)(nil),  // 0: controlplane.TraefikConfig
-	(*DeployRequest)(nil),  // 1: controlplane.DeployRequest
-	(*DeployResponse)(nil), // 2: controlplane.DeployResponse
-	(*DeleteRequest)(nil),  // 3: controlplane.DeleteRequest
-	(*DeleteResponse)(nil), // 4: controlplane.DeleteResponse
-	nil,                    // 5: controlplane.TraefikConfig.CustomLabelsEntry
-	nil,                    // 6: controlplane.DeployRequest.LabelsEntry
+	(NetworkMode)(0),       // 0: controlplane.NetworkMode
+	(*TraefikConfig)(nil),  // 1: controlplane.TraefikConfig
+	(*DeployRequest)(nil),  // 2: controlplane.DeployRequest
+	(*DeployResponse)(nil), // 3: controlplane.DeployResponse
+	(*DeleteRequest)(nil),  // 4: controlplane.DeleteRequest
+	(*DeleteResponse)(nil), // 5: controlplane.DeleteResponse
+	nil,                    // 6: controlplane.TraefikConfig.CustomLabelsEntry
+	nil,                    // 7: controlplane.DeployRequest.LabelsEntry
 }
 var file_api_proto_controlplane_proto_depIdxs = []int32{
-	5, // 0: controlplane.TraefikConfig.custom_labels:type_name -> controlplane.TraefikConfig.CustomLabelsEntry
-	6, // 1: controlplane.DeployRequest.labels:type_name -> controlplane.DeployRequest.LabelsEntry
-	0, // 2: controlplane.DeployRequest.traefik:type_name -> controlplane.TraefikConfig
-	1, // 3: controlplane.ControlPlane.DeployApplication:input_type -> controlplane.DeployRequest
-	3, // 4: controlplane.ControlPlane.DeleteApplication:input_type -> controlplane.DeleteRequest
-	2, // 5: controlplane.ControlPlane.DeployApplication:output_type -> controlplane.DeployResponse
-	4, // 6: controlplane.ControlPlane.DeleteApplication:output_type -> controlplane.DeleteResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	6, // 0: controlplane.TraefikConfig.custom_labels:type_name -> controlplane.TraefikConfig.CustomLabelsEntry
+	7, // 1: controlplane.DeployRequest.labels:type_name -> controlplane.DeployRequest.LabelsEntry
+	1, // 2: controlplane.DeployRequest.traefik:type_name -> controlplane.TraefikConfig
+	0, // 3: controlplane.DeployRequest.network_mode:type_name -> controlplane.NetworkMode
+	2, // 4: controlplane.ControlPlane.DeployApplication:input_type -> controlplane.DeployRequest
+	4, // 5: controlplane.ControlPlane.DeleteApplication:input_type -> controlplane.DeleteRequest
+	3, // 6: controlplane.ControlPlane.DeployApplication:output_type -> controlplane.DeployResponse
+	5, // 7: controlplane.ControlPlane.DeleteApplication:output_type -> controlplane.DeleteResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_controlplane_proto_init() }
@@ -510,13 +575,14 @@ func file_api_proto_controlplane_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_controlplane_proto_rawDesc), len(file_api_proto_controlplane_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_api_proto_controlplane_proto_goTypes,
 		DependencyIndexes: file_api_proto_controlplane_proto_depIdxs,
+		EnumInfos:         file_api_proto_controlplane_proto_enumTypes,
 		MessageInfos:      file_api_proto_controlplane_proto_msgTypes,
 	}.Build()
 	File_api_proto_controlplane_proto = out.File

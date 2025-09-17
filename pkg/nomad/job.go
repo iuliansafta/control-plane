@@ -49,11 +49,14 @@ type JobTemplate struct {
 	Name          string
 	Image         string
 	Instances     int
+	Region        string
 	Ports         Ports
 	Environment   map[string]string
 	ResourcesSpec Resources
 	HealthCheck   ServiceCheck
 	Traefik       TraefikSpec
+	DisableConsul bool
+	NetworkMode   string // "bridge" or "host", defaults to "host" if empty
 }
 
 func BuildJobTemplate(req *JobTemplate) *JobTemplate {
@@ -61,12 +64,19 @@ func BuildJobTemplate(req *JobTemplate) *JobTemplate {
 }
 
 func (jt *JobTemplate) ToNomadJob() *nmd.Job {
-	return &nmd.Job{
+	job := &nmd.Job{
+		ID:          &jt.Name,
 		Name:        &jt.Name,
 		Type:        utils.StringPtr("service"),
 		Datacenters: []string{"dc1"},
 		TaskGroups:  jt.buildTaskGroup(),
 	}
+
+	if jt.Region != "" {
+		job.Region = &jt.Region
+	}
+
+	return job
 }
 
 func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
@@ -86,15 +96,27 @@ func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
 
 	networks := []*nmd.NetworkResource{}
 	if jt.Ports.Label != "" {
+		networkMode := jt.NetworkMode
+		if networkMode == "" {
+			networkMode = "host"
+		}
+
 		network := &nmd.NetworkResource{
-			Mode: "bridge",
+			Mode: networkMode,
 		}
 
 		var dynamicPorts []nmd.Port
-		dynamicPorts = append(dynamicPorts, nmd.Port{
-			Label: jt.Ports.Label,
-			To:    jt.Ports.To, // Container port
-		})
+		if networkMode == "bridge" {
+			dynamicPorts = append(dynamicPorts, nmd.Port{
+				Label: jt.Ports.Label,
+				To:    jt.Ports.To, // Container port
+			})
+		} else {
+			dynamicPorts = append(dynamicPorts, nmd.Port{
+				Label: jt.Ports.Label,
+				Value: jt.Ports.Value, // Host port (0 for dynamic allocation)
+			})
+		}
 
 		network.DynamicPorts = dynamicPorts
 		networks = append(networks, network)
@@ -104,18 +126,23 @@ func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
 		"image": jt.Image,
 	}
 
-	if len(jt.Environment) > 0 {
-		driverConfig["env"] = jt.Environment
-	}
-
 	if jt.Ports.Label != "" {
-		var portMappings []map[string]any
-		portMappings = append(portMappings, map[string]any{
-			"HostPort":      "${NOMAD_HOST_PORT_" + jt.Ports.Label + "}",
-			"ContainerPort": jt.Ports.To,
-		})
+		networkMode := jt.NetworkMode
+		if networkMode == "" {
+			networkMode = "host"
+		}
 
-		driverConfig["ports"] = portMappings
+		// CNI if available
+		if networkMode == "bridge" {
+			var portMappings []map[string]any
+			portMappings = append(portMappings, map[string]any{
+				"HostPort":      "${NOMAD_HOST_PORT_" + jt.Ports.Label + "}",
+				"ContainerPort": jt.Ports.To,
+			})
+			driverConfig["ports"] = portMappings
+		} else {
+			driverConfig["network_mode"] = "host"
+		}
 	}
 
 	task := &nmd.Task{
@@ -126,7 +153,7 @@ func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
 	}
 
 	var services []*nmd.Service
-	if jt.Ports.Label != "" {
+	if jt.Ports.Label != "" && !jt.DisableConsul {
 		traefikTags := jt.Traefik.GenerateTraefikTags(jt.Name, jt.Ports.Label)
 
 		service := &nmd.Service{

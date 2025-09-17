@@ -3,6 +3,12 @@ syntax = "proto3";
 package controlplane;
 option go_package = "github.com/iuliansafta/iulian-cloud-controller/api/proto";
 
+enum NetworkMode {
+    NETWORK_MODE_UNSPECIFIED = 0; // Defaults to HOST
+    NETWORK_MODE_HOST = 1;
+    NETWORK_MODE_BRIDGE = 2;
+}
+
 service ControlPlane {
     rpc DeployApplication(DeployRequest) returns (DeployResponse);
     rpc DeleteApplication(DeleteRequest) returns (DeleteResponse);
@@ -12,17 +18,11 @@ message TraefikConfig {
     bool enable = 1;
     string host = 2;
     string entrypoint = 3;
-
-    // SSL Configuration
     bool enable_ssl = 4;
     string ssl_host = 5;
     string cert_resolver = 6;
-
-    // Load Balancer Configuration
     string health_check_path = 7;
     string health_check_interval = 8;
-
-    // Additional router options
     string path_prefix = 9;
     repeated string middlewares = 10;
     map<string, string> custom_labels = 11;
@@ -37,6 +37,7 @@ message DeployRequest {
     string region = 6;
     map<string, string> labels = 7;
     TraefikConfig traefik = 8;
+    NetworkMode network_mode = 9;
 }
 
 message DeployResponse {
