@@ -51,9 +51,9 @@ func (c *DeployConfig) Validate() error {
 func main() {
 	var (
 		server      = flag.String("server", "localhost:50051", "gRPC server address")
-		action      = flag.String("action", "deploy", "Action: deploy, delete")
-		name        = flag.String("name", "test-app", "Application name")
-		image       = flag.String("image", "traefik/whoami:latest", "Container image")
+		action      = flag.String("action", "usage", "Action: deploy, delete")
+		name        = flag.String("name", "", "Application name")
+		image       = flag.String("image", "", "Container image")
 		replicas    = flag.Int("replicas", 1, "Number of replicas")
 		cpu         = flag.Float64("cpu", 0.1, "CPU cores")
 		memory      = flag.Int64("memory", 128, "Memory in MB")
