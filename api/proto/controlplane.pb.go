@@ -21,6 +21,133 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type TraefikConfig struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Enable     bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
+	Host       string                 `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
+	Entrypoint string                 `protobuf:"bytes,3,opt,name=entrypoint,proto3" json:"entrypoint,omitempty"`
+	// SSL Configuration
+	EnableSsl    bool   `protobuf:"varint,4,opt,name=enable_ssl,json=enableSsl,proto3" json:"enable_ssl,omitempty"`
+	SslHost      string `protobuf:"bytes,5,opt,name=ssl_host,json=sslHost,proto3" json:"ssl_host,omitempty"`
+	CertResolver string `protobuf:"bytes,6,opt,name=cert_resolver,json=certResolver,proto3" json:"cert_resolver,omitempty"`
+	// Load Balancer Configuration
+	HealthCheckPath     string `protobuf:"bytes,7,opt,name=health_check_path,json=healthCheckPath,proto3" json:"health_check_path,omitempty"`
+	HealthCheckInterval string `protobuf:"bytes,8,opt,name=health_check_interval,json=healthCheckInterval,proto3" json:"health_check_interval,omitempty"`
+	// Additional router options
+	PathPrefix    string            `protobuf:"bytes,9,opt,name=path_prefix,json=pathPrefix,proto3" json:"path_prefix,omitempty"`
+	Middlewares   []string          `protobuf:"bytes,10,rep,name=middlewares,proto3" json:"middlewares,omitempty"`
+	CustomLabels  map[string]string `protobuf:"bytes,11,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TraefikConfig) Reset() {
+	*x = TraefikConfig{}
+	mi := &file_api_proto_controlplane_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TraefikConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TraefikConfig) ProtoMessage() {}
+
+func (x *TraefikConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_controlplane_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TraefikConfig.ProtoReflect.Descriptor instead.
+func (*TraefikConfig) Descriptor() ([]byte, []int) {
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *TraefikConfig) GetEnable() bool {
+	if x != nil {
+		return x.Enable
+	}
+	return false
+}
+
+func (x *TraefikConfig) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *TraefikConfig) GetEntrypoint() string {
+	if x != nil {
+		return x.Entrypoint
+	}
+	return ""
+}
+
+func (x *TraefikConfig) GetEnableSsl() bool {
+	if x != nil {
+		return x.EnableSsl
+	}
+	return false
+}
+
+func (x *TraefikConfig) GetSslHost() string {
+	if x != nil {
+		return x.SslHost
+	}
+	return ""
+}
+
+func (x *TraefikConfig) GetCertResolver() string {
+	if x != nil {
+		return x.CertResolver
+	}
+	return ""
+}
+
+func (x *TraefikConfig) GetHealthCheckPath() string {
+	if x != nil {
+		return x.HealthCheckPath
+	}
+	return ""
+}
+
+func (x *TraefikConfig) GetHealthCheckInterval() string {
+	if x != nil {
+		return x.HealthCheckInterval
+	}
+	return ""
+}
+
+func (x *TraefikConfig) GetPathPrefix() string {
+	if x != nil {
+		return x.PathPrefix
+	}
+	return ""
+}
+
+func (x *TraefikConfig) GetMiddlewares() []string {
+	if x != nil {
+		return x.Middlewares
+	}
+	return nil
+}
+
+func (x *TraefikConfig) GetCustomLabels() map[string]string {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
 type DeployRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -30,13 +157,14 @@ type DeployRequest struct {
 	Memory        int64                  `protobuf:"varint,5,opt,name=memory,proto3" json:"memory,omitempty"`
 	Region        string                 `protobuf:"bytes,6,opt,name=region,proto3" json:"region,omitempty"`
 	Labels        map[string]string      `protobuf:"bytes,7,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Traefik       *TraefikConfig         `protobuf:"bytes,8,opt,name=traefik,proto3" json:"traefik,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeployRequest) Reset() {
 	*x = DeployRequest{}
-	mi := &file_api_proto_controlplane_proto_msgTypes[0]
+	mi := &file_api_proto_controlplane_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -48,7 +176,7 @@ func (x *DeployRequest) String() string {
 func (*DeployRequest) ProtoMessage() {}
 
 func (x *DeployRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_controlplane_proto_msgTypes[0]
+	mi := &file_api_proto_controlplane_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,7 +189,7 @@ func (x *DeployRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeployRequest.ProtoReflect.Descriptor instead.
 func (*DeployRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{0}
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *DeployRequest) GetName() string {
@@ -113,6 +241,13 @@ func (x *DeployRequest) GetLabels() map[string]string {
 	return nil
 }
 
+func (x *DeployRequest) GetTraefik() *TraefikConfig {
+	if x != nil {
+		return x.Traefik
+	}
+	return nil
+}
+
 type DeployResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DeploymentId  string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
@@ -124,7 +259,7 @@ type DeployResponse struct {
 
 func (x *DeployResponse) Reset() {
 	*x = DeployResponse{}
-	mi := &file_api_proto_controlplane_proto_msgTypes[1]
+	mi := &file_api_proto_controlplane_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -136,7 +271,7 @@ func (x *DeployResponse) String() string {
 func (*DeployResponse) ProtoMessage() {}
 
 func (x *DeployResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_controlplane_proto_msgTypes[1]
+	mi := &file_api_proto_controlplane_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -149,7 +284,7 @@ func (x *DeployResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeployResponse.ProtoReflect.Descriptor instead.
 func (*DeployResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{1}
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *DeployResponse) GetDeploymentId() string {
@@ -183,7 +318,7 @@ type DeleteRequest struct {
 
 func (x *DeleteRequest) Reset() {
 	*x = DeleteRequest{}
-	mi := &file_api_proto_controlplane_proto_msgTypes[2]
+	mi := &file_api_proto_controlplane_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -195,7 +330,7 @@ func (x *DeleteRequest) String() string {
 func (*DeleteRequest) ProtoMessage() {}
 
 func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_controlplane_proto_msgTypes[2]
+	mi := &file_api_proto_controlplane_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -208,7 +343,7 @@ func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{2}
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *DeleteRequest) GetDeploymentId() string {
@@ -235,7 +370,7 @@ type DeleteResponse struct {
 
 func (x *DeleteResponse) Reset() {
 	*x = DeleteResponse{}
-	mi := &file_api_proto_controlplane_proto_msgTypes[3]
+	mi := &file_api_proto_controlplane_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -247,7 +382,7 @@ func (x *DeleteResponse) String() string {
 func (*DeleteResponse) ProtoMessage() {}
 
 func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_controlplane_proto_msgTypes[3]
+	mi := &file_api_proto_controlplane_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -260,7 +395,7 @@ func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
 func (*DeleteResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{3}
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteResponse) GetSuccess() bool {
@@ -281,7 +416,27 @@ var File_api_proto_controlplane_proto protoreflect.FileDescriptor
 
 const file_api_proto_controlplane_proto_rawDesc = "" +
 	"\n" +
-	"\x1capi/proto/controlplane.proto\x12\fcontrolplane\"\x93\x02\n" +
+	"\x1capi/proto/controlplane.proto\x12\fcontrolplane\"\xf2\x03\n" +
+	"\rTraefikConfig\x12\x16\n" +
+	"\x06enable\x18\x01 \x01(\bR\x06enable\x12\x12\n" +
+	"\x04host\x18\x02 \x01(\tR\x04host\x12\x1e\n" +
+	"\n" +
+	"entrypoint\x18\x03 \x01(\tR\n" +
+	"entrypoint\x12\x1d\n" +
+	"\n" +
+	"enable_ssl\x18\x04 \x01(\bR\tenableSsl\x12\x19\n" +
+	"\bssl_host\x18\x05 \x01(\tR\asslHost\x12#\n" +
+	"\rcert_resolver\x18\x06 \x01(\tR\fcertResolver\x12*\n" +
+	"\x11health_check_path\x18\a \x01(\tR\x0fhealthCheckPath\x122\n" +
+	"\x15health_check_interval\x18\b \x01(\tR\x13healthCheckInterval\x12\x1f\n" +
+	"\vpath_prefix\x18\t \x01(\tR\n" +
+	"pathPrefix\x12 \n" +
+	"\vmiddlewares\x18\n" +
+	" \x03(\tR\vmiddlewares\x12R\n" +
+	"\rcustom_labels\x18\v \x03(\v2-.controlplane.TraefikConfig.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xca\x02\n" +
 	"\rDeployRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12\x1a\n" +
@@ -289,7 +444,8 @@ const file_api_proto_controlplane_proto_rawDesc = "" +
 	"\x03cpu\x18\x04 \x01(\x01R\x03cpu\x12\x16\n" +
 	"\x06memory\x18\x05 \x01(\x03R\x06memory\x12\x16\n" +
 	"\x06region\x18\x06 \x01(\tR\x06region\x12?\n" +
-	"\x06labels\x18\a \x03(\v2'.controlplane.DeployRequest.LabelsEntryR\x06labels\x1a9\n" +
+	"\x06labels\x18\a \x03(\v2'.controlplane.DeployRequest.LabelsEntryR\x06labels\x125\n" +
+	"\atraefik\x18\b \x01(\v2\x1b.controlplane.TraefikConfigR\atraefik\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"g\n" +
@@ -319,25 +475,29 @@ func file_api_proto_controlplane_proto_rawDescGZIP() []byte {
 	return file_api_proto_controlplane_proto_rawDescData
 }
 
-var file_api_proto_controlplane_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_api_proto_controlplane_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_api_proto_controlplane_proto_goTypes = []any{
-	(*DeployRequest)(nil),  // 0: controlplane.DeployRequest
-	(*DeployResponse)(nil), // 1: controlplane.DeployResponse
-	(*DeleteRequest)(nil),  // 2: controlplane.DeleteRequest
-	(*DeleteResponse)(nil), // 3: controlplane.DeleteResponse
-	nil,                    // 4: controlplane.DeployRequest.LabelsEntry
+	(*TraefikConfig)(nil),  // 0: controlplane.TraefikConfig
+	(*DeployRequest)(nil),  // 1: controlplane.DeployRequest
+	(*DeployResponse)(nil), // 2: controlplane.DeployResponse
+	(*DeleteRequest)(nil),  // 3: controlplane.DeleteRequest
+	(*DeleteResponse)(nil), // 4: controlplane.DeleteResponse
+	nil,                    // 5: controlplane.TraefikConfig.CustomLabelsEntry
+	nil,                    // 6: controlplane.DeployRequest.LabelsEntry
 }
 var file_api_proto_controlplane_proto_depIdxs = []int32{
-	4, // 0: controlplane.DeployRequest.labels:type_name -> controlplane.DeployRequest.LabelsEntry
-	0, // 1: controlplane.ControlPlane.DeployApplication:input_type -> controlplane.DeployRequest
-	2, // 2: controlplane.ControlPlane.DeleteApplication:input_type -> controlplane.DeleteRequest
-	1, // 3: controlplane.ControlPlane.DeployApplication:output_type -> controlplane.DeployResponse
-	3, // 4: controlplane.ControlPlane.DeleteApplication:output_type -> controlplane.DeleteResponse
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 0: controlplane.TraefikConfig.custom_labels:type_name -> controlplane.TraefikConfig.CustomLabelsEntry
+	6, // 1: controlplane.DeployRequest.labels:type_name -> controlplane.DeployRequest.LabelsEntry
+	0, // 2: controlplane.DeployRequest.traefik:type_name -> controlplane.TraefikConfig
+	1, // 3: controlplane.ControlPlane.DeployApplication:input_type -> controlplane.DeployRequest
+	3, // 4: controlplane.ControlPlane.DeleteApplication:input_type -> controlplane.DeleteRequest
+	2, // 5: controlplane.ControlPlane.DeployApplication:output_type -> controlplane.DeployResponse
+	4, // 6: controlplane.ControlPlane.DeleteApplication:output_type -> controlplane.DeleteResponse
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_controlplane_proto_init() }
@@ -351,7 +511,7 @@ func file_api_proto_controlplane_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_controlplane_proto_rawDesc), len(file_api_proto_controlplane_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

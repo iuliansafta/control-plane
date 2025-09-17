@@ -25,3 +25,21 @@ func NewNomadClient(address string) (*NomadClient, error) {
 		client: client,
 	}, nil
 }
+
+func (nc *NomadClient) DeployJob(jobTemplate *JobTemplate) (*nmd.JobRegisterResponse, error) {
+	job := jobTemplate.ToNomadJob()
+
+	jobs := nc.client.Jobs()
+	resp, _, err := jobs.Register(job, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (nc *NomadClient) DeleteJob(jobID string) error {
+	jobs := nc.client.Jobs()
+	_, _, err := jobs.Deregister(jobID, true, nil)
+	return err
+}

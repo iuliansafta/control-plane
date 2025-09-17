@@ -8,6 +8,26 @@ service ControlPlane {
     rpc DeleteApplication(DeleteRequest) returns (DeleteResponse);
 }
 
+message TraefikConfig {
+    bool enable = 1;
+    string host = 2;
+    string entrypoint = 3;
+
+    // SSL Configuration
+    bool enable_ssl = 4;
+    string ssl_host = 5;
+    string cert_resolver = 6;
+
+    // Load Balancer Configuration
+    string health_check_path = 7;
+    string health_check_interval = 8;
+
+    // Additional router options
+    string path_prefix = 9;
+    repeated string middlewares = 10;
+    map<string, string> custom_labels = 11;
+}
+
 message DeployRequest {
     string name = 1;
     string image = 2;
@@ -16,6 +36,7 @@ message DeployRequest {
     int64 memory = 5;
     string region = 6;
     map<string, string> labels = 7;
+    TraefikConfig traefik = 8;
 }
 
 message DeployResponse {
