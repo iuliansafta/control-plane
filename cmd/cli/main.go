@@ -171,7 +171,7 @@ func deleteApp(ctx context.Context, client pb.ControlPlaneClient, deleteId, name
 	}
 
 	if targetId == "" {
-		log.Fatalf("Either -delete-id or -name must be provided for delete action")
+		log.Fatalf("-delete-id or -name must be provided for delete action")
 	}
 
 	req := &pb.DeleteRequest{
@@ -213,8 +213,6 @@ func printUsage() {
 	fmt.Println("  -delete-id string      Deployment ID to delete (for delete action)")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  # Deploy with defaults")
-	fmt.Println("  cli -action=deploy -name=whoami -image=traefik/whoami:latest")
 	fmt.Println()
 	fmt.Println("  # Deploy with custom resources")
 	fmt.Println("  cli -action=deploy -name=webapp -image=nginx:latest -replicas=3 -cpu=0.5 -memory=512")
