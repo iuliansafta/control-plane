@@ -26,17 +26,17 @@ type ServiceCheck struct {
 }
 
 type TraefikSpec struct {
-	Enable              bool              `json:"enable"`
-	Host                string            `json:"host"`
-	Entrypoint          string            `json:"entrypoint"`
-	EnableSSL           bool              `json:"enable_ssl"`
-	SSLHost             string            `json:"ssl_host"`
-	CertResolver        string            `json:"cert_resolver"`
-	HealthCheckPath     string            `json:"health_check_path"`
-	HealthCheckInterval string            `json:"health_check_interval"`
-	PathPrefix          string            `json:"path_prefix"`
-	Middlewares         []string          `json:"middlewares"`
-	CustomLabels        map[string]string `json:"custom_labels"`
+	Enable              bool
+	Host                string
+	Entrypoint          string
+	EnableSSL           bool
+	SSLHost             string
+	CertResolver        string
+	HealthCheckPath     string
+	HealthCheckInterval string
+	PathPrefix          string
+	Middlewares         []string
+	CustomLabels        map[string]string
 }
 
 type Ports struct {
