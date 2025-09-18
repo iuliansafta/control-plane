@@ -24,8 +24,19 @@ func main() {
 
 	nomadAddr := *nomadAddress
 	if nomadAddr == "" {
-		nomadAddr = "http://localhost:4646"
-		log.Printf("No Nomad address provided, using default: %s", nomadAddr)
+		if envAddr := os.Getenv("NOMAD_ADDR"); envAddr != "" {
+			nomadAddr = envAddr
+		} else {
+			nomadAddr = "http://localhost:4646"
+		}
+	}
+
+	port := *grpcPort
+	if port == "50051" {
+		if envPort := os.Getenv("GRPC_PORT"); envPort != "" {
+			port = envPort
+			log.Printf("Using gRPC port from environment: %s", port)
+		}
 	}
 
 	// Initialize Nomad client
@@ -38,7 +49,7 @@ func main() {
 	apiServer := api.NewApplicationService(nomadClient)
 
 	// Create listener
-	listener, err := net.Listen("tcp", ":"+*grpcPort)
+	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
@@ -56,7 +67,7 @@ func main() {
 
 	// Start gRPC server
 	go func() {
-		log.Printf("Starting gRPC server on :%s", *grpcPort)
+		log.Printf("Starting gRPC server on :%s", port)
 		if err := grpcServer.Serve(listener); err != nil {
 			log.Fatalf("Failed to serve: %v", err)
 		}
