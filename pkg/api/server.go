@@ -40,7 +40,7 @@ func (s *ApplicationService) DeployApplication(ctx context.Context, req *pb.Depl
 		DisableConsul: false,
 		NetworkMode:   networkMode,
 		ResourcesSpec: nomad.Resources{
-			CPU:      utils.IntPtr(int(req.Cpu * 10)), // Reduced CPU allocation
+			CPU:      utils.IntPtr(int(req.Cpu * 10)),
 			MemoryMB: utils.IntPtr(int(req.Memory)),
 		},
 		Environment: make(map[string]string),

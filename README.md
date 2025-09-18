@@ -22,7 +22,7 @@ A Go-based control plane service for deploying and managing containerized applic
 
 
 ### Prerequisites Linux
-- **Refer to the Ansible repository** ![Ansible Metal](https://github.com/iuliansafta/ansible-metal)
+- **Refer to the Ansible repository** ![Ansible Metal](https://github.com/iuliansafta/ansible-ubuntu)
 
 
 ### Installation
