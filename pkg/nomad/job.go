@@ -147,7 +147,7 @@ func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
 
 	task := &nmd.Task{
 		Name:      jt.Name,
-		Driver:    "docker",
+		Driver:    "containerd-driver",
 		Config:    driverConfig,
 		Resources: resources,
 	}
