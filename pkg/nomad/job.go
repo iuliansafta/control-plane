@@ -140,14 +140,12 @@ func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
 				"ContainerPort": jt.Ports.To,
 			})
 			driverConfig["ports"] = portMappings
-		} else {
-			driverConfig["network_mode"] = "host"
 		}
 	}
 
 	task := &nmd.Task{
 		Name:      jt.Name,
-		Driver:    "containerd-driver",
+		Driver:    "containerd-driver", //TODO: I need to do this dynamically
 		Config:    driverConfig,
 		Resources: resources,
 	}
