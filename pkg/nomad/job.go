@@ -123,24 +123,8 @@ func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
 	}
 
 	driverConfig := map[string]any{
-		"image": jt.Image,
-	}
-
-	if jt.Ports.Label != "" {
-		networkMode := jt.NetworkMode
-		if networkMode == "" {
-			networkMode = "host"
-		}
-
-		// CNI if available
-		if networkMode == "bridge" {
-			var portMappings []map[string]any
-			portMappings = append(portMappings, map[string]any{
-				"HostPort":      "${NOMAD_HOST_PORT_" + jt.Ports.Label + "}",
-				"ContainerPort": jt.Ports.To,
-			})
-			driverConfig["ports"] = portMappings
-		}
+		"image":           jt.Image,
+		"image_pull_mode": "always",
 	}
 
 	task := &nmd.Task{
@@ -148,6 +132,7 @@ func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
 		Driver:    "containerd-driver", //TODO: I need to do this dynamically
 		Config:    driverConfig,
 		Resources: resources,
+		Env:       jt.Environment,
 	}
 
 	var services []*nmd.Service
