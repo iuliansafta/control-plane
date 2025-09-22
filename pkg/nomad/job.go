@@ -123,8 +123,7 @@ func (jt *JobTemplate) buildTaskGroup() []*nmd.TaskGroup {
 	}
 
 	driverConfig := map[string]any{
-		"image":           jt.Image,
-		"image_pull_mode": "always",
+		"image": jt.Image,
 	}
 
 	task := &nmd.Task{
