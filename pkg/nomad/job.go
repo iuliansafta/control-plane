@@ -244,8 +244,6 @@ func (ts *TraefikSpec) GenerateTraefikTags(serviceName, portLabel string) []stri
 		}
 	}
 
-	tags = append(tags, fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.port=${NOMAD_PORT_%s}", serviceName, portLabel))
-
 	if ts.HealthCheckPath != "" {
 		tags = append(tags, fmt.Sprintf("traefik.http.services.%s.loadbalancer.healthcheck.path=%s", serviceName, ts.HealthCheckPath))
 

@@ -133,7 +133,7 @@ func deployApp(ctx context.Context, client pb.ControlPlaneClient, config *Deploy
 		traefikConfig = &pb.TraefikConfig{
 			Enable:              true,
 			Host:                config.TraefikHost,
-			Entrypoint:          "web",
+			Entrypoint:          "websecure",
 			EnableSsl:           config.TraefikSSL,
 			HealthCheckPath:     "/",
 			HealthCheckInterval: "30s",
