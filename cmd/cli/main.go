@@ -21,7 +21,6 @@ type DeployConfig struct {
 	Memory      int64
 	Region      string
 	NetworkMode string
-	EnvVars     string
 	TraefikHost string
 	TraefikSSL  bool
 }
@@ -59,9 +58,8 @@ func main() {
 		memory      = flag.Int64("memory", 128, "Memory in MB")
 		region      = flag.String("region", "global", "Target region")
 		networkMode = flag.String("network", "host", "Network mode: host, bridge")
-		envVars     = flag.String("env", "", "Environment variables (KEY1=VALUE1,KEY2=VALUE2)")
-		traefikHost = flag.String("traefik-host", "", "Enable Traefik with hostname")
-		traefikSSL  = flag.Bool("traefik-ssl", false, "Enable SSL for Traefik")
+		traefikHost = flag.String("host", "", "Enable Traefik with hostname")
+		traefikSSL  = flag.Bool("ssl", false, "Enable SSL for Traefik")
 		deleteId    = flag.String("delete-id", "", "Deployment ID to delete (for delete action)")
 	)
 	flag.Parse()
@@ -87,7 +85,6 @@ func main() {
 			Memory:      *memory,
 			Region:      *region,
 			NetworkMode: *networkMode,
-			EnvVars:     *envVars,
 			TraefikHost: *traefikHost,
 			TraefikSSL:  *traefikSSL,
 		}
@@ -115,18 +112,6 @@ func deployApp(ctx context.Context, client pb.ControlPlaneClient, config *Deploy
 		log.Fatalf("Invalid network mode: %s (must be 'host' or 'bridge')", config.NetworkMode)
 	}
 
-	// environment := make(map[string]string)
-	// if config.EnvVars != "" {
-	// 	pairs := strings.Split(config.EnvVars, ",")
-	// 	for _, pair := range pairs {
-	// 		parts := strings.SplitN(pair, "=", 2)
-	// 		if len(parts) != 2 {
-	// 			log.Fatalf("Invalid environment variable format: %s (should be KEY=VALUE)", pair)
-	// 		}
-	// 		environment[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
-	// 	}
-	// }
-
 	// Configure Traefik if host is provided
 	var traefikConfig *pb.TraefikConfig
 	if config.TraefikHost != "" {
@@ -148,8 +133,7 @@ func deployApp(ctx context.Context, client pb.ControlPlaneClient, config *Deploy
 		Memory:      config.Memory,
 		Region:      config.Region,
 		NetworkMode: networkMode,
-		// Labels:      environment,
-		Traefik: traefikConfig,
+		Traefik:     traefikConfig,
 	}
 
 	fmt.Printf("Deploying application '%s' with image '%s'...\n", config.Name, config.Image)
@@ -184,11 +168,7 @@ func deleteApp(ctx context.Context, client pb.ControlPlaneClient, deleteId, name
 		log.Fatalf("Failed to delete application: %v", err)
 	}
 
-	if resp.Success {
-		fmt.Printf("%s\n", resp.Message)
-	} else {
-		fmt.Printf("%s\n", resp.Message)
-	}
+	fmt.Printf("%s\n", resp.Message)
 }
 
 func printUsage() {
@@ -207,9 +187,8 @@ func printUsage() {
 	fmt.Println("  -memory int            Memory in MB (default: 128)")
 	fmt.Println("  -region string         Target region (default: global)")
 	fmt.Println("  -network string        Network mode: host, bridge (default: host)")
-	fmt.Println("  -env string            Environment variables (KEY1=VALUE1,KEY2=VALUE2)")
-	fmt.Println("  -traefik-host string   Enable Traefik with hostname")
-	fmt.Println("  -traefik-ssl           Enable SSL for Traefik")
+	fmt.Println("  -host string   		  Enable Traefik with hostname")
+	fmt.Println("  -ssl           		  Enable SSL for Traefik")
 	fmt.Println("  -delete-id string      Deployment ID to delete (for delete action)")
 	fmt.Println()
 	fmt.Println("Examples:")
@@ -218,10 +197,7 @@ func printUsage() {
 	fmt.Println("  cli -action=deploy -name=webapp -image=nginx:latest -replicas=3 -cpu=0.5 -memory=512")
 	fmt.Println()
 	fmt.Println("  # Deploy with Traefik")
-	fmt.Println("  cli -action=deploy -name=webapp -image=nginx:latest -traefik-host=webapp.local -traefik-ssl")
-	fmt.Println()
-	fmt.Println("  # Deploy with environment variables")
-	fmt.Println("  cli -action=deploy -name=app -image=myapp:latest -env=\"ENV=production,DEBUG=false\"")
+	fmt.Println("  cli -action=deploy -name=webapp -image=nginx:latest -host=webapp.local -ssl")
 	fmt.Println()
 	fmt.Println("  # Delete application")
 	fmt.Println("  cli -action=delete -name=whoami")
