@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"time"
 
 	pb "github.com/iuliansafta/control-plane/api/proto"
 	"github.com/iuliansafta/control-plane/pkg/nomad"
@@ -157,5 +158,28 @@ func (s *ApplicationService) GetApplicationStatus(ctx context.Context, req *pb.S
 		RunningInstances: runningInstances,
 		Allocations:      allocationStatuses,
 		Message:          "Application status retrieved successfully",
+	}, nil
+}
+
+// HealthCheck performs a health check on the service
+func (s *ApplicationService) HealthCheck(ctx context.Context, req *pb.HealthCheckRequest) (*pb.HealthCheckResponse, error) {
+	status := pb.HealthStatus_SERVING
+	message := "Service is healthy"
+
+	if s.orhClient != nil {
+		err := s.orhClient.HealthCheck()
+		if err != nil {
+			status = pb.HealthStatus_NOT_SERVING
+			message = fmt.Sprintf("Nomad client unhealthy: %v", err)
+		}
+	} else {
+		status = pb.HealthStatus_NOT_SERVING
+		message = "Nomad client not initialized"
+	}
+
+	return &pb.HealthCheckResponse{
+		Status:    status,
+		Message:   message,
+		Timestamp: time.Now().Unix(),
 	}, nil
 }

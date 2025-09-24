@@ -63,3 +63,10 @@ func (nc *NomadClient) GetJobStatus(jobID string) (*nmd.Job, []*nmd.AllocationLi
 
 	return job, allocations, nil
 }
+
+// HealthCheck checks the health of the Nomad connection
+func (nc *NomadClient) HealthCheck() error {
+	agent := nc.client.Agent()
+	_, err := agent.Self()
+	return err
+}

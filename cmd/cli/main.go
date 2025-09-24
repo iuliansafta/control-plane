@@ -50,7 +50,7 @@ func (c *DeployConfig) Validate() error {
 func main() {
 	var (
 		server      = flag.String("server", "localhost:50051", "gRPC server address")
-		action      = flag.String("action", "", "Action: deploy, delete, status")
+		action      = flag.String("action", "", "Action: deploy, delete, status, health")
 		name        = flag.String("name", "", "Application name")
 		image       = flag.String("image", "", "Container image")
 		replicas    = flag.Int("replicas", 1, "Number of replicas")
@@ -93,6 +93,8 @@ func main() {
 		deleteApp(ctx, client, *deleteId, *name)
 	case "status":
 		getStatus(ctx, client, *name)
+	case "health":
+		healthCheck(ctx, client)
 	default:
 		fmt.Printf("Unknown action: %s\n", *action)
 		printUsage()
@@ -205,6 +207,32 @@ func getStatus(ctx context.Context, client pb.ControlPlaneClient, name string) {
 	fmt.Printf("\nMessage: %s\n\n", resp.Message)
 }
 
+func healthCheck(ctx context.Context, client pb.ControlPlaneClient) {
+	req := &pb.HealthCheckRequest{
+		Service: "control-plane",
+	}
+
+	fmt.Printf("Checking service health...\n")
+	resp, err := client.HealthCheck(ctx, req)
+	if err != nil {
+		log.Fatalf("Health check failed: %v", err)
+	}
+
+	statusText := "UNKNOWN"
+	switch resp.Status {
+	case pb.HealthStatus_SERVING:
+		statusText = "SERVING"
+	case pb.HealthStatus_NOT_SERVING:
+		statusText = "NOT_SERVING"
+	case pb.HealthStatus_SERVICE_UNKNOWN:
+		statusText = "SERVICE_UNKNOWN"
+	}
+
+	fmt.Printf("Health Status: %s\n", statusText)
+	fmt.Printf("Message: %s\n", resp.Message)
+	fmt.Printf("Timestamp: %d\n", resp.Timestamp)
+}
+
 func printUsage() {
 	fmt.Println("Control Plane CLI")
 	fmt.Println()
@@ -213,7 +241,7 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println("Flags:")
 	fmt.Println("  -server string         gRPC server address (default: localhost:50051)")
-	fmt.Println("  -action string         Action: deploy, delete, status")
+	fmt.Println("  -action string         Action: deploy, delete, status, health")
 	fmt.Println("  -name string           Application name")
 	fmt.Println("  -image string          Container image")
 	fmt.Println("  -replicas int          Number of replicas (default: 1)")
@@ -232,6 +260,9 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println("  # Get application status")
 	fmt.Println("  cli -action=status -name=webapp")
+	fmt.Println()
+	fmt.Println("  # Check service health")
+	fmt.Println("  cli -action=health")
 	fmt.Println()
 	fmt.Println("  # Delete application")
 	fmt.Println("  cli -action=delete -name=webapp")
