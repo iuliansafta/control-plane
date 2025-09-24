@@ -466,6 +466,386 @@ func (x *DeleteResponse) GetMessage() string {
 	return ""
 }
 
+type StatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeploymentId  string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StatusRequest) Reset() {
+	*x = StatusRequest{}
+	mi := &file_api_proto_controlplane_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatusRequest) ProtoMessage() {}
+
+func (x *StatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_controlplane_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatusRequest.ProtoReflect.Descriptor instead.
+func (*StatusRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *StatusRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+type AllocationStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AllocationId  string                 `protobuf:"bytes,1,opt,name=allocation_id,json=allocationId,proto3" json:"allocation_id,omitempty"`
+	NodeId        string                 `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeName      string                 `protobuf:"bytes,3,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	DesiredStatus string                 `protobuf:"bytes,5,opt,name=desired_status,json=desiredStatus,proto3" json:"desired_status,omitempty"`
+	CreateTime    int64                  `protobuf:"varint,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	ModifyTime    int64                  `protobuf:"varint,7,opt,name=modify_time,json=modifyTime,proto3" json:"modify_time,omitempty"`
+	TaskStates    map[string]string      `protobuf:"bytes,8,rep,name=task_states,json=taskStates,proto3" json:"task_states,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AllocationStatus) Reset() {
+	*x = AllocationStatus{}
+	mi := &file_api_proto_controlplane_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AllocationStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AllocationStatus) ProtoMessage() {}
+
+func (x *AllocationStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_controlplane_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AllocationStatus.ProtoReflect.Descriptor instead.
+func (*AllocationStatus) Descriptor() ([]byte, []int) {
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *AllocationStatus) GetAllocationId() string {
+	if x != nil {
+		return x.AllocationId
+	}
+	return ""
+}
+
+func (x *AllocationStatus) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *AllocationStatus) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
+}
+
+func (x *AllocationStatus) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *AllocationStatus) GetDesiredStatus() string {
+	if x != nil {
+		return x.DesiredStatus
+	}
+	return ""
+}
+
+func (x *AllocationStatus) GetCreateTime() int64 {
+	if x != nil {
+		return x.CreateTime
+	}
+	return 0
+}
+
+func (x *AllocationStatus) GetModifyTime() int64 {
+	if x != nil {
+		return x.ModifyTime
+	}
+	return 0
+}
+
+func (x *AllocationStatus) GetTaskStates() map[string]string {
+	if x != nil {
+		return x.TaskStates
+	}
+	return nil
+}
+
+type StatusResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	DeploymentId     string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	JobStatus        string                 `protobuf:"bytes,2,opt,name=job_status,json=jobStatus,proto3" json:"job_status,omitempty"`
+	JobType          string                 `protobuf:"bytes,3,opt,name=job_type,json=jobType,proto3" json:"job_type,omitempty"`
+	DesiredInstances int32                  `protobuf:"varint,4,opt,name=desired_instances,json=desiredInstances,proto3" json:"desired_instances,omitempty"`
+	RunningInstances int32                  `protobuf:"varint,5,opt,name=running_instances,json=runningInstances,proto3" json:"running_instances,omitempty"`
+	Allocations      []*AllocationStatus    `protobuf:"bytes,6,rep,name=allocations,proto3" json:"allocations,omitempty"`
+	Message          string                 `protobuf:"bytes,7,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *StatusResponse) Reset() {
+	*x = StatusResponse{}
+	mi := &file_api_proto_controlplane_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatusResponse) ProtoMessage() {}
+
+func (x *StatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_controlplane_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
+func (*StatusResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *StatusResponse) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *StatusResponse) GetJobStatus() string {
+	if x != nil {
+		return x.JobStatus
+	}
+	return ""
+}
+
+func (x *StatusResponse) GetJobType() string {
+	if x != nil {
+		return x.JobType
+	}
+	return ""
+}
+
+func (x *StatusResponse) GetDesiredInstances() int32 {
+	if x != nil {
+		return x.DesiredInstances
+	}
+	return 0
+}
+
+func (x *StatusResponse) GetRunningInstances() int32 {
+	if x != nil {
+		return x.RunningInstances
+	}
+	return 0
+}
+
+func (x *StatusResponse) GetAllocations() []*AllocationStatus {
+	if x != nil {
+		return x.Allocations
+	}
+	return nil
+}
+
+func (x *StatusResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type LogsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeploymentId  string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	AllocationId  string                 `protobuf:"bytes,2,opt,name=allocation_id,json=allocationId,proto3" json:"allocation_id,omitempty"`
+	TaskName      string                 `protobuf:"bytes,3,opt,name=task_name,json=taskName,proto3" json:"task_name,omitempty"`
+	Follow        bool                   `protobuf:"varint,4,opt,name=follow,proto3" json:"follow,omitempty"`
+	TailLines     int32                  `protobuf:"varint,5,opt,name=tail_lines,json=tailLines,proto3" json:"tail_lines,omitempty"`
+	LogType       string                 `protobuf:"bytes,6,opt,name=log_type,json=logType,proto3" json:"log_type,omitempty"` // stdout or stderr
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogsRequest) Reset() {
+	*x = LogsRequest{}
+	mi := &file_api_proto_controlplane_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogsRequest) ProtoMessage() {}
+
+func (x *LogsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_controlplane_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogsRequest.ProtoReflect.Descriptor instead.
+func (*LogsRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *LogsRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *LogsRequest) GetAllocationId() string {
+	if x != nil {
+		return x.AllocationId
+	}
+	return ""
+}
+
+func (x *LogsRequest) GetTaskName() string {
+	if x != nil {
+		return x.TaskName
+	}
+	return ""
+}
+
+func (x *LogsRequest) GetFollow() bool {
+	if x != nil {
+		return x.Follow
+	}
+	return false
+}
+
+func (x *LogsRequest) GetTailLines() int32 {
+	if x != nil {
+		return x.TailLines
+	}
+	return 0
+}
+
+func (x *LogsRequest) GetLogType() string {
+	if x != nil {
+		return x.LogType
+	}
+	return ""
+}
+
+type LogsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LogLines      []string               `protobuf:"bytes,1,rep,name=log_lines,json=logLines,proto3" json:"log_lines,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Success       bool                   `protobuf:"varint,3,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogsResponse) Reset() {
+	*x = LogsResponse{}
+	mi := &file_api_proto_controlplane_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogsResponse) ProtoMessage() {}
+
+func (x *LogsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_controlplane_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogsResponse.ProtoReflect.Descriptor instead.
+func (*LogsResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_controlplane_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *LogsResponse) GetLogLines() []string {
+	if x != nil {
+		return x.LogLines
+	}
+	return nil
+}
+
+func (x *LogsResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *LogsResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_api_proto_controlplane_proto protoreflect.FileDescriptor
 
 const file_api_proto_controlplane_proto_rawDesc = "" +
@@ -513,14 +893,54 @@ const file_api_proto_controlplane_proto_rawDesc = "" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\"D\n" +
 	"\x0eDeleteResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage*[\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"4\n" +
+	"\rStatusRequest\x12#\n" +
+	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"\xfe\x02\n" +
+	"\x10AllocationStatus\x12#\n" +
+	"\rallocation_id\x18\x01 \x01(\tR\fallocationId\x12\x17\n" +
+	"\anode_id\x18\x02 \x01(\tR\x06nodeId\x12\x1b\n" +
+	"\tnode_name\x18\x03 \x01(\tR\bnodeName\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12%\n" +
+	"\x0edesired_status\x18\x05 \x01(\tR\rdesiredStatus\x12\x1f\n" +
+	"\vcreate_time\x18\x06 \x01(\x03R\n" +
+	"createTime\x12\x1f\n" +
+	"\vmodify_time\x18\a \x01(\x03R\n" +
+	"modifyTime\x12O\n" +
+	"\vtask_states\x18\b \x03(\v2..controlplane.AllocationStatus.TaskStatesEntryR\n" +
+	"taskStates\x1a=\n" +
+	"\x0fTaskStatesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa5\x02\n" +
+	"\x0eStatusResponse\x12#\n" +
+	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x12\x1d\n" +
+	"\n" +
+	"job_status\x18\x02 \x01(\tR\tjobStatus\x12\x19\n" +
+	"\bjob_type\x18\x03 \x01(\tR\ajobType\x12+\n" +
+	"\x11desired_instances\x18\x04 \x01(\x05R\x10desiredInstances\x12+\n" +
+	"\x11running_instances\x18\x05 \x01(\x05R\x10runningInstances\x12@\n" +
+	"\vallocations\x18\x06 \x03(\v2\x1e.controlplane.AllocationStatusR\vallocations\x12\x18\n" +
+	"\amessage\x18\a \x01(\tR\amessage\"\xc6\x01\n" +
+	"\vLogsRequest\x12#\n" +
+	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x12#\n" +
+	"\rallocation_id\x18\x02 \x01(\tR\fallocationId\x12\x1b\n" +
+	"\ttask_name\x18\x03 \x01(\tR\btaskName\x12\x16\n" +
+	"\x06follow\x18\x04 \x01(\bR\x06follow\x12\x1d\n" +
+	"\n" +
+	"tail_lines\x18\x05 \x01(\x05R\ttailLines\x12\x19\n" +
+	"\blog_type\x18\x06 \x01(\tR\alogType\"_\n" +
+	"\fLogsResponse\x12\x1b\n" +
+	"\tlog_lines\x18\x01 \x03(\tR\blogLines\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x18\n" +
+	"\asuccess\x18\x03 \x01(\bR\asuccess*[\n" +
 	"\vNetworkMode\x12\x1c\n" +
 	"\x18NETWORK_MODE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11NETWORK_MODE_HOST\x10\x01\x12\x17\n" +
-	"\x13NETWORK_MODE_BRIDGE\x10\x022\xae\x01\n" +
+	"\x13NETWORK_MODE_BRIDGE\x10\x022\xce\x02\n" +
 	"\fControlPlane\x12N\n" +
 	"\x11DeployApplication\x12\x1b.controlplane.DeployRequest\x1a\x1c.controlplane.DeployResponse\x12N\n" +
-	"\x11DeleteApplication\x12\x1b.controlplane.DeleteRequest\x1a\x1c.controlplane.DeleteResponseB0Z.github.com/iuliansafta/control-plane/api/protob\x06proto3"
+	"\x11DeleteApplication\x12\x1b.controlplane.DeleteRequest\x1a\x1c.controlplane.DeleteResponse\x12Q\n" +
+	"\x14GetApplicationStatus\x12\x1b.controlplane.StatusRequest\x1a\x1c.controlplane.StatusResponse\x12K\n" +
+	"\x12GetApplicationLogs\x12\x19.controlplane.LogsRequest\x1a\x1a.controlplane.LogsResponseB0Z.github.com/iuliansafta/control-plane/api/protob\x06proto3"
 
 var (
 	file_api_proto_controlplane_proto_rawDescOnce sync.Once
@@ -535,31 +955,43 @@ func file_api_proto_controlplane_proto_rawDescGZIP() []byte {
 }
 
 var file_api_proto_controlplane_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_proto_controlplane_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_api_proto_controlplane_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_api_proto_controlplane_proto_goTypes = []any{
-	(NetworkMode)(0),       // 0: controlplane.NetworkMode
-	(*TraefikConfig)(nil),  // 1: controlplane.TraefikConfig
-	(*DeployRequest)(nil),  // 2: controlplane.DeployRequest
-	(*DeployResponse)(nil), // 3: controlplane.DeployResponse
-	(*DeleteRequest)(nil),  // 4: controlplane.DeleteRequest
-	(*DeleteResponse)(nil), // 5: controlplane.DeleteResponse
-	nil,                    // 6: controlplane.TraefikConfig.CustomLabelsEntry
-	nil,                    // 7: controlplane.DeployRequest.LabelsEntry
+	(NetworkMode)(0),         // 0: controlplane.NetworkMode
+	(*TraefikConfig)(nil),    // 1: controlplane.TraefikConfig
+	(*DeployRequest)(nil),    // 2: controlplane.DeployRequest
+	(*DeployResponse)(nil),   // 3: controlplane.DeployResponse
+	(*DeleteRequest)(nil),    // 4: controlplane.DeleteRequest
+	(*DeleteResponse)(nil),   // 5: controlplane.DeleteResponse
+	(*StatusRequest)(nil),    // 6: controlplane.StatusRequest
+	(*AllocationStatus)(nil), // 7: controlplane.AllocationStatus
+	(*StatusResponse)(nil),   // 8: controlplane.StatusResponse
+	(*LogsRequest)(nil),      // 9: controlplane.LogsRequest
+	(*LogsResponse)(nil),     // 10: controlplane.LogsResponse
+	nil,                      // 11: controlplane.TraefikConfig.CustomLabelsEntry
+	nil,                      // 12: controlplane.DeployRequest.LabelsEntry
+	nil,                      // 13: controlplane.AllocationStatus.TaskStatesEntry
 }
 var file_api_proto_controlplane_proto_depIdxs = []int32{
-	6, // 0: controlplane.TraefikConfig.custom_labels:type_name -> controlplane.TraefikConfig.CustomLabelsEntry
-	7, // 1: controlplane.DeployRequest.labels:type_name -> controlplane.DeployRequest.LabelsEntry
-	1, // 2: controlplane.DeployRequest.traefik:type_name -> controlplane.TraefikConfig
-	0, // 3: controlplane.DeployRequest.network_mode:type_name -> controlplane.NetworkMode
-	2, // 4: controlplane.ControlPlane.DeployApplication:input_type -> controlplane.DeployRequest
-	4, // 5: controlplane.ControlPlane.DeleteApplication:input_type -> controlplane.DeleteRequest
-	3, // 6: controlplane.ControlPlane.DeployApplication:output_type -> controlplane.DeployResponse
-	5, // 7: controlplane.ControlPlane.DeleteApplication:output_type -> controlplane.DeleteResponse
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	11, // 0: controlplane.TraefikConfig.custom_labels:type_name -> controlplane.TraefikConfig.CustomLabelsEntry
+	12, // 1: controlplane.DeployRequest.labels:type_name -> controlplane.DeployRequest.LabelsEntry
+	1,  // 2: controlplane.DeployRequest.traefik:type_name -> controlplane.TraefikConfig
+	0,  // 3: controlplane.DeployRequest.network_mode:type_name -> controlplane.NetworkMode
+	13, // 4: controlplane.AllocationStatus.task_states:type_name -> controlplane.AllocationStatus.TaskStatesEntry
+	7,  // 5: controlplane.StatusResponse.allocations:type_name -> controlplane.AllocationStatus
+	2,  // 6: controlplane.ControlPlane.DeployApplication:input_type -> controlplane.DeployRequest
+	4,  // 7: controlplane.ControlPlane.DeleteApplication:input_type -> controlplane.DeleteRequest
+	6,  // 8: controlplane.ControlPlane.GetApplicationStatus:input_type -> controlplane.StatusRequest
+	9,  // 9: controlplane.ControlPlane.GetApplicationLogs:input_type -> controlplane.LogsRequest
+	3,  // 10: controlplane.ControlPlane.DeployApplication:output_type -> controlplane.DeployResponse
+	5,  // 11: controlplane.ControlPlane.DeleteApplication:output_type -> controlplane.DeleteResponse
+	8,  // 12: controlplane.ControlPlane.GetApplicationStatus:output_type -> controlplane.StatusResponse
+	10, // 13: controlplane.ControlPlane.GetApplicationLogs:output_type -> controlplane.LogsResponse
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_controlplane_proto_init() }
@@ -573,7 +1005,7 @@ func file_api_proto_controlplane_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_controlplane_proto_rawDesc), len(file_api_proto_controlplane_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

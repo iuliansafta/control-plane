@@ -22,7 +22,7 @@ A Go-based control plane service for deploying and managing containerized applic
 
 
 ### Prerequisites Linux
-- **Refer to the Ansible repository** ![Ansible Metal](https://github.com/iuliansafta/ansible-ubuntu)
+- **Refer to the Ansible repository** ![Ansible Bare Metal](https://github.com/iuliansafta/ansible-ubuntu)
 
 
 ### Installation
@@ -64,6 +64,7 @@ The Control Plane exposes a gRPC service for programmatic access to deployment o
 service ControlPlane {
     rpc DeployApplication(DeployRequest) returns (DeployResponse);
     rpc DeleteApplication(DeleteRequest) returns (DeleteResponse);
+    rpc GetApplicationStatus(StatusRequest) returns (StatusResponse);
 }
 ```
 
@@ -139,7 +140,7 @@ resp, err := client.DeployApplication(ctx, &pb.DeployRequest{
 |-------|------|-------------|
 | `enable` | bool | Enable Traefik integration |
 | `host` | string | Hostname for routing |
-| `enable_ssl` | bool | Enable HTTPS |
+| `ssl` | bool | Enable HTTPS |
 | `health_check_path` | string | Health check endpoint |
 
 ### How to Develop the gRPC Service
@@ -236,15 +237,8 @@ The Command-Line Interface provides an easy way to interact with the Control Pla
 ./bin/cli -action=deploy \
   -name=frontend \
   -image=nginx:latest \
-  -traefik-host=myapp.local \
-  -traefik-ssl
-```
-
-**Application with environment variables:**
-```bash
-./bin/cli -action=deploy \
-  -name=api \
-  -image=myapi:latest \
+  -host=myapp.local \
+  -ssl
 ```
 
 **Bridge networking (with CNI):**
@@ -260,11 +254,7 @@ The Command-Line Interface provides an easy way to interact with the Control Pla
 **Delete by name:**
 ```bash
 ./bin/cli -action=delete -name=whoami
-```
 
-**Delete by deployment ID:**
-```bash
-./bin/cli -action=delete -delete-id=abc123-def456
 ```
 
 #### Deployment Flags
@@ -278,41 +268,8 @@ The Command-Line Interface provides an easy way to interact with the Control Pla
 | `-memory` | int | `128` | Memory in MB |
 | `-region` | string | `global` | Target region |
 | `-network` | string | `host` | Network mode (host/bridge) |
-| `-env` | string | `""` | Environment variables (KEY1=VALUE1,KEY2=VALUE2) |
-| `-traefik-host` | string | `""` | Enable Traefik with hostname |
-| `-traefik-ssl` | bool | `false` | Enable SSL for Traefik |
-
-### How to Develop the CLI
-
-#### 1. Architecture
-
-The CLI follows a clean, flag-based pattern:
-
-```go
-type DeployConfig struct {
-    Name        string
-    Image       string
-    Replicas    int
-    CPU         float64
-    Memory      int64
-    NetworkMode string
-}
-
-func deployApp(ctx context.Context, client pb.ControlPlaneClient, config *DeployConfig)
-```
-
-#### 2. Making Changes
-
-**Add New Flags:**
-1. Add field to appropriate config struct
-2. Add flag variable in `main()`
-3. Set field value when creating config
-4. Update validation if needed
-
-**Add New Commands:**
-1. Add new action to switch statement
-2. Create handler function
-3. Update usage documentation
+| `-host` | string | `""` | Enable Traefik with hostname |
+| `-ssl` | bool | `false` | Enable SSL for Traefik |
 
 
 ## Development
@@ -328,18 +285,6 @@ make check-tools
 make install-tools
 ```
 
-### Project Dependencies
-
-**Core:**
-- `google.golang.org/grpc` - gRPC framework
-- `github.com/hashicorp/nomad/api` - Nomad client
-- `google.golang.org/protobuf` - Protocol buffers
-
-**Development:**
-- `protoc` - Protocol buffer compiler
-- `protoc-gen-go` - Go protobuf plugin
-- `protoc-gen-go-grpc` - Go gRPC plugin
-
 ### Environment Setup
 
 **Using Devbox (recommended):**
@@ -347,23 +292,6 @@ make install-tools
 devbox shell
 # Provides: Go 1.25, golangci-lint, and development tools
 ```
-
-### Testing Strategy
-
-**Manual Testing:**
-- Deploy applications through CLI
-- Verify with Nomad Web UI: `http://localhost:4646`
-- Check container status with Docker
-
-**Integration Testing:**
-- Test different network modes
-- Verify Traefik integration
-- Test resource allocation limits
-
-**Load Testing:**
-- Deploy multiple applications simultaneously
-- Test resource exhaustion scenarios
-- Verify cleanup operations
 
 ## Additional Resources
 

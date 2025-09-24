@@ -14,7 +14,7 @@ install-tools:
 	@echo "Tools installed!"
 
 check-tools:
-	@which protoc > /dev/null || (echo "protoc not found. Please install protobuf compiler" && exit 1)
+	@which protoc > /dev/null || (echo "protoc not found. install protobuf compiler" && exit 1)
 	@which protoc-gen-go > /dev/null || (echo "protoc-gen-go not found. Run 'make install-tools'" && exit 1)
 	@which protoc-gen-go-grpc > /dev/null || (echo "protoc-gen-go-grpc not found. Run 'make install-tools'" && exit 1)
 	@which golangci-lint > /dev/null || (echo "golangci-lint not found. Run 'make install-tools'" && exit 1)

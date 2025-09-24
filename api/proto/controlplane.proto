@@ -12,6 +12,8 @@ enum NetworkMode {
 service ControlPlane {
     rpc DeployApplication(DeployRequest) returns (DeployResponse);
     rpc DeleteApplication(DeleteRequest) returns (DeleteResponse);
+    rpc GetApplicationStatus(StatusRequest) returns (StatusResponse);
+    rpc GetApplicationLogs(LogsRequest) returns (LogsResponse); //TODO: need to implement this
 }
 
 message TraefikConfig {
@@ -54,4 +56,44 @@ message DeleteRequest {
 message DeleteResponse {
     bool success = 1;
     string message = 2;
+}
+
+message StatusRequest {
+    string deployment_id = 1;
+}
+
+message AllocationStatus {
+    string allocation_id = 1;
+    string node_id = 2;
+    string node_name = 3;
+    string status = 4;
+    string desired_status = 5;
+    int64 create_time = 6;
+    int64 modify_time = 7;
+    map<string, string> task_states = 8;
+}
+
+message StatusResponse {
+    string deployment_id = 1;
+    string job_status = 2;
+    string job_type = 3;
+    int32 desired_instances = 4;
+    int32 running_instances = 5;
+    repeated AllocationStatus allocations = 6;
+    string message = 7;
+}
+
+message LogsRequest {
+    string deployment_id = 1;
+    string allocation_id = 2;
+    string task_name = 3;
+    bool follow = 4;
+    int32 tail_lines = 5;
+    string log_type = 6;
+}
+
+message LogsResponse {
+    repeated string log_lines = 1;
+    string message = 2;
+    bool success = 3;
 }

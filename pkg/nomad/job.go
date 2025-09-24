@@ -2,7 +2,6 @@ package nomad
 
 import (
 	"fmt"
-	"maps"
 	"time"
 
 	nmd "github.com/hashicorp/nomad/api"
@@ -261,6 +260,8 @@ func (ts *TraefikSpec) GenerateTraefikTags(serviceName, portLabel string) []stri
 	return tags
 }
 
+type TraefikOption func(*TraefikSpec)
+
 func NewTraefikSpec(host string, options ...TraefikOption) TraefikSpec {
 	spec := TraefikSpec{
 		Enable:              true,
@@ -276,38 +277,4 @@ func NewTraefikSpec(host string, options ...TraefikOption) TraefikSpec {
 	}
 
 	return spec
-}
-
-type TraefikOption func(*TraefikSpec)
-
-func WithSSL(certResolver string) TraefikOption {
-	return func(spec *TraefikSpec) {
-		spec.EnableSSL = true
-		spec.CertResolver = certResolver
-	}
-}
-
-func WithPathPrefix(prefix string) TraefikOption {
-	return func(spec *TraefikSpec) {
-		spec.PathPrefix = prefix
-	}
-}
-
-func WithMiddlewares(middlewares ...string) TraefikOption {
-	return func(spec *TraefikSpec) {
-		spec.Middlewares = middlewares
-	}
-}
-
-func WithHealthCheck(path, interval string) TraefikOption {
-	return func(spec *TraefikSpec) {
-		spec.HealthCheckPath = path
-		spec.HealthCheckInterval = interval
-	}
-}
-
-func WithCustomLabels(labels map[string]string) TraefikOption {
-	return func(spec *TraefikSpec) {
-		maps.Copy(spec.CustomLabels, labels)
-	}
 }

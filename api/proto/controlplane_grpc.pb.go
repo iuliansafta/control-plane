@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControlPlane_DeployApplication_FullMethodName = "/controlplane.ControlPlane/DeployApplication"
-	ControlPlane_DeleteApplication_FullMethodName = "/controlplane.ControlPlane/DeleteApplication"
+	ControlPlane_DeployApplication_FullMethodName    = "/controlplane.ControlPlane/DeployApplication"
+	ControlPlane_DeleteApplication_FullMethodName    = "/controlplane.ControlPlane/DeleteApplication"
+	ControlPlane_GetApplicationStatus_FullMethodName = "/controlplane.ControlPlane/GetApplicationStatus"
+	ControlPlane_GetApplicationLogs_FullMethodName   = "/controlplane.ControlPlane/GetApplicationLogs"
 )
 
 // ControlPlaneClient is the client API for ControlPlane service.
@@ -29,6 +31,8 @@ const (
 type ControlPlaneClient interface {
 	DeployApplication(ctx context.Context, in *DeployRequest, opts ...grpc.CallOption) (*DeployResponse, error)
 	DeleteApplication(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
+	GetApplicationStatus(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
+	GetApplicationLogs(ctx context.Context, in *LogsRequest, opts ...grpc.CallOption) (*LogsResponse, error)
 }
 
 type controlPlaneClient struct {
@@ -59,12 +63,34 @@ func (c *controlPlaneClient) DeleteApplication(ctx context.Context, in *DeleteRe
 	return out, nil
 }
 
+func (c *controlPlaneClient) GetApplicationStatus(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, ControlPlane_GetApplicationStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controlPlaneClient) GetApplicationLogs(ctx context.Context, in *LogsRequest, opts ...grpc.CallOption) (*LogsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LogsResponse)
+	err := c.cc.Invoke(ctx, ControlPlane_GetApplicationLogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlPlaneServer is the server API for ControlPlane service.
 // All implementations must embed UnimplementedControlPlaneServer
 // for forward compatibility.
 type ControlPlaneServer interface {
 	DeployApplication(context.Context, *DeployRequest) (*DeployResponse, error)
 	DeleteApplication(context.Context, *DeleteRequest) (*DeleteResponse, error)
+	GetApplicationStatus(context.Context, *StatusRequest) (*StatusResponse, error)
+	GetApplicationLogs(context.Context, *LogsRequest) (*LogsResponse, error)
 	mustEmbedUnimplementedControlPlaneServer()
 }
 
@@ -80,6 +106,12 @@ func (UnimplementedControlPlaneServer) DeployApplication(context.Context, *Deplo
 }
 func (UnimplementedControlPlaneServer) DeleteApplication(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteApplication not implemented")
+}
+func (UnimplementedControlPlaneServer) GetApplicationStatus(context.Context, *StatusRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetApplicationStatus not implemented")
+}
+func (UnimplementedControlPlaneServer) GetApplicationLogs(context.Context, *LogsRequest) (*LogsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetApplicationLogs not implemented")
 }
 func (UnimplementedControlPlaneServer) mustEmbedUnimplementedControlPlaneServer() {}
 func (UnimplementedControlPlaneServer) testEmbeddedByValue()                      {}
@@ -138,6 +170,42 @@ func _ControlPlane_DeleteApplication_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlPlane_GetApplicationStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneServer).GetApplicationStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlane_GetApplicationStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneServer).GetApplicationStatus(ctx, req.(*StatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ControlPlane_GetApplicationLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneServer).GetApplicationLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlane_GetApplicationLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneServer).GetApplicationLogs(ctx, req.(*LogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlPlane_ServiceDesc is the grpc.ServiceDesc for ControlPlane service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +220,14 @@ var ControlPlane_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteApplication",
 			Handler:    _ControlPlane_DeleteApplication_Handler,
+		},
+		{
+			MethodName: "GetApplicationStatus",
+			Handler:    _ControlPlane_GetApplicationStatus_Handler,
+		},
+		{
+			MethodName: "GetApplicationLogs",
+			Handler:    _ControlPlane_GetApplicationLogs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

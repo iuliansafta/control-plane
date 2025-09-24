@@ -21,6 +21,7 @@ func NewApplicationService(orchClient *nomad.NomadClient) *ApplicationService {
 	}
 }
 
+// DeployApplication deploys an application to the orchestrator
 func (s *ApplicationService) DeployApplication(ctx context.Context, req *pb.DeployRequest) (*pb.DeployResponse, error) {
 	networkMode := "host"
 	switch req.NetworkMode {
@@ -87,6 +88,7 @@ func (s *ApplicationService) DeployApplication(ctx context.Context, req *pb.Depl
 	}, nil
 }
 
+// DeleteApplication deletes an application.
 func (s *ApplicationService) DeleteApplication(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
 	err := s.orhClient.DeleteJob(req.DeploymentId)
 	if err != nil {
@@ -99,5 +101,61 @@ func (s *ApplicationService) DeleteApplication(ctx context.Context, req *pb.Dele
 	return &pb.DeleteResponse{
 		Success: true,
 		Message: "Application deleted successfully",
+	}, nil
+}
+
+// GetApplicationStatus retrieves the status of an application.
+func (s *ApplicationService) GetApplicationStatus(ctx context.Context, req *pb.StatusRequest) (*pb.StatusResponse, error) {
+	job, allocations, err := s.orhClient.GetJobStatus(req.DeploymentId)
+
+	if err != nil {
+		return &pb.StatusResponse{
+			DeploymentId: req.DeploymentId,
+			Message:      fmt.Sprintf("Failed to get application status: %v", err),
+		}, nil
+	}
+
+	var allocationStatuses []*pb.AllocationStatus
+	runningInstances := int32(0)
+
+	for _, alloc := range allocations {
+		taskStates := make(map[string]string)
+		if alloc.TaskStates != nil {
+			for taskName, taskState := range alloc.TaskStates {
+				taskStates[taskName] = taskState.State
+			}
+		}
+
+		if alloc.ClientStatus == "running" {
+			runningInstances++
+		}
+
+		allocationStatus := &pb.AllocationStatus{
+			AllocationId:  alloc.ID,
+			NodeId:        alloc.NodeID,
+			NodeName:      alloc.NodeName,
+			Status:        alloc.ClientStatus,
+			DesiredStatus: alloc.DesiredStatus,
+			CreateTime:    alloc.CreateTime,
+			ModifyTime:    alloc.ModifyTime,
+			TaskStates:    taskStates,
+		}
+		allocationStatuses = append(allocationStatuses, allocationStatus)
+	}
+
+	desiredInstances := int32(0)
+
+	if len(job.TaskGroups) > 0 {
+		desiredInstances = int32(*job.TaskGroups[0].Count)
+	}
+
+	return &pb.StatusResponse{
+		DeploymentId:     req.DeploymentId,
+		JobStatus:        *job.Status,
+		JobType:          *job.Type,
+		DesiredInstances: desiredInstances,
+		RunningInstances: runningInstances,
+		Allocations:      allocationStatuses,
+		Message:          "Application status retrieved successfully",
 	}, nil
 }
