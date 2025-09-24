@@ -50,7 +50,7 @@ func (c *DeployConfig) Validate() error {
 func main() {
 	var (
 		server      = flag.String("server", "localhost:50051", "gRPC server address")
-		action      = flag.String("action", "usage", "Action: deploy, delete")
+		action      = flag.String("action", "", "Action: deploy, delete, status")
 		name        = flag.String("name", "", "Application name")
 		image       = flag.String("image", "", "Container image")
 		replicas    = flag.Int("replicas", 1, "Number of replicas")
@@ -91,6 +91,8 @@ func main() {
 		deployApp(ctx, client, config)
 	case "delete":
 		deleteApp(ctx, client, *deleteId, *name)
+	case "status":
+		getStatus(ctx, client, *name)
 	default:
 		fmt.Printf("Unknown action: %s\n", *action)
 		printUsage()
@@ -171,6 +173,38 @@ func deleteApp(ctx context.Context, client pb.ControlPlaneClient, deleteId, name
 	fmt.Printf("%s\n", resp.Message)
 }
 
+func getStatus(ctx context.Context, client pb.ControlPlaneClient, name string) {
+	if name == "" {
+		log.Fatalf("-name must be provided for get deployment status")
+	}
+
+	req := &pb.StatusRequest{
+		DeploymentId: name,
+	}
+
+	resp, err := client.GetApplicationStatus(ctx, req)
+	if err != nil {
+		log.Fatalf("Failed to get application status: %v", err)
+	}
+
+	fmt.Printf("\nApplication: %s\n", resp.DeploymentId)
+	fmt.Printf("Status: %s\n", resp.JobStatus)
+	fmt.Printf("Type: %s\n", resp.JobType)
+	fmt.Printf("Instances: %d/%d running\n", resp.RunningInstances, resp.DesiredInstances)
+
+	if len(resp.Allocations) > 0 {
+		fmt.Printf("\nAllocations:\n")
+		for _, alloc := range resp.Allocations {
+			allocID := alloc.AllocationId
+			if len(allocID) > 8 {
+				allocID = allocID[:8]
+			}
+			fmt.Printf("  - %s on %s: %s\n", allocID, alloc.NodeName, alloc.Status)
+		}
+	}
+	fmt.Printf("\nMessage: %s\n\n", resp.Message)
+}
+
 func printUsage() {
 	fmt.Println("Control Plane CLI")
 	fmt.Println()
@@ -179,9 +213,9 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println("Flags:")
 	fmt.Println("  -server string         gRPC server address (default: localhost:50051)")
-	fmt.Println("  -action string         Action: deploy, delete (default: deploy)")
-	fmt.Println("  -name string           Application name (default: test-app)")
-	fmt.Println("  -image string          Container image (default: traefik/whoami:latest)")
+	fmt.Println("  -action string         Action: deploy, delete, status")
+	fmt.Println("  -name string           Application name")
+	fmt.Println("  -image string          Container image")
 	fmt.Println("  -replicas int          Number of replicas (default: 1)")
 	fmt.Println("  -cpu float             CPU cores (default: 0.1)")
 	fmt.Println("  -memory int            Memory in MB (default: 128)")
@@ -193,15 +227,12 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println("Examples:")
 	fmt.Println()
-	fmt.Println("  # Deploy with custom resources")
-	fmt.Println("  cli -action=deploy -name=webapp -image=nginx:latest -replicas=3 -cpu=0.5 -memory=512")
+	fmt.Println("  # Deploy application")
+	fmt.Println("  cli -action=deploy -name=webapp -image=nginx:latest -replicas=2")
 	fmt.Println()
-	fmt.Println("  # Deploy with Traefik")
-	fmt.Println("  cli -action=deploy -name=webapp -image=nginx:latest -host=webapp.local -ssl")
+	fmt.Println("  # Get application status")
+	fmt.Println("  cli -action=status -name=webapp")
 	fmt.Println()
 	fmt.Println("  # Delete application")
-	fmt.Println("  cli -action=delete -name=whoami")
-	fmt.Println()
-	fmt.Println("  # Delete by deployment ID")
-	fmt.Println("  cli -action=delete -delete-id=abc123-def456")
+	fmt.Println("  cli -action=delete -name=webapp")
 }
