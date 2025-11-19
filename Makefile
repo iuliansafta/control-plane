@@ -1,4 +1,4 @@
-.PHONY: build install-tools check-tools proto lint test clean
+.PHONY: build install-tools check-tools proto lint test clean migrate-up migrate-down migrate-force
 
 build:
 	go build -o bin/controller cmd/controller/main.go
@@ -47,3 +47,14 @@ build-fast:
 	@go build -o bin/controller cmd/controller/main.go
 	@go build -o bin/cli cmd/cli/main.go
 	@echo "Fast build completed!"
+
+migrate-up:
+	@echo "Starting migrations..."
+	@migrate -path migrations -database "$(DATABASE_URL)" up
+	@echo "Migrations completed"
+
+migrate-down:
+	@migrate -path migrations -database "$(DATABASE_URL)" down
+
+migrate-force:
+	@migrate -path migrations -database "$(DATABASE_URL)" force

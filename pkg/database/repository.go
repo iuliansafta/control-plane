@@ -1,0 +1,149 @@
+package database
+
+import (
+	"database/sql"
+	"errors"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+// APIKey API key in the database
+type APIKey struct {
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	KeyHash   string    `json:"-"`
+	IsActive  bool      `json:"is_active"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type APIKeyRepository struct {
+	db *DB
+}
+
+func NewAPIKeyRepository(db *DB) *APIKeyRepository {
+	return &APIKeyRepository{db: db}
+}
+
+// Create creates a new API key
+func (r *APIKeyRepository) Create(name, keyHash string) (*APIKey, error) {
+	var key APIKey
+	err := r.db.QueryRow(`
+		INSERT INTO api_keys (name, key_hash)
+		VALUES ($1, $2)
+		RETURNING id, name, key_hash, is_active, created_at
+	`, name, keyHash).Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &key, nil
+}
+
+// GetByHash retrieves an API key by its hash
+func (r *APIKeyRepository) GetByHash(keyHash string) (*APIKey, error) {
+	var key APIKey
+	err := r.db.QueryRow(`
+		SELECT id, name, key_hash, is_active, created_at
+		FROM api_keys
+		WHERE key_hash = $1
+	`, keyHash).Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &key, nil
+}
+
+// GetByID retrieves an API key by its ID
+func (r *APIKeyRepository) GetByID(id uuid.UUID) (*APIKey, error) {
+	var key APIKey
+	err := r.db.QueryRow(`
+		SELECT id, name, key_hash, is_active, created_at
+		FROM api_keys
+		WHERE id = $1
+	`, id).Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &key, nil
+}
+
+// List retrieves all API keys
+func (r *APIKeyRepository) List() ([]APIKey, error) {
+	rows, err := r.db.Query(`
+		SELECT id, name, key_hash, is_active, created_at
+		FROM api_keys
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var keys []APIKey
+	for rows.Next() {
+		var key APIKey
+		if err := rows.Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt); err != nil {
+			return nil, err
+		}
+		keys = append(keys, key)
+	}
+
+	return keys, rows.Err()
+}
+
+// Delete deletes an API key by its ID
+func (r *APIKeyRepository) Delete(id uuid.UUID) error {
+	result, err := r.db.Exec(`DELETE FROM api_keys WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+// Deactivate deactivates an API key
+func (r *APIKeyRepository) Deactivate(id uuid.UUID) error {
+	result, err := r.db.Exec(`UPDATE api_keys SET is_active = false WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+// Count returns the total number of API keys
+func (r *APIKeyRepository) Count() (int, error) {
+	var count int
+	err := r.db.QueryRow(`SELECT COUNT(*) FROM api_keys`).Scan(&count)
+	return count, err
+}
