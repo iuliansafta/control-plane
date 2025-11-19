@@ -50,7 +50,7 @@ func main() {
 
 	// Start gRPC server
 	go func() {
-		log.Printf("Starting gRPC server on :%s", *grpcPort)
+		log.Printf("Starting gRPC server on :%s nomad addr: %s", *grpcPort, *nomadAddress)
 		if err := grpcServer.Serve(listener); err != nil {
 			log.Fatalf("Failed to serve: %v", err)
 		}
