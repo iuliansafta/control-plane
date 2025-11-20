@@ -9,7 +9,7 @@ import (
 	pb "github.com/iuliansafta/control-plane/api/proto"
 )
 
-// DeployRequest represents the JSON request for deployment
+// DeployRequest JSON request for deployment
 type DeployRequest struct {
 	Name        string            `json:"name"`
 	Image       string            `json:"image"`
@@ -19,10 +19,11 @@ type DeployRequest struct {
 	Region      string            `json:"region,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
 	NetworkMode string            `json:"network_mode,omitempty"`
-	Traefik     *TraefikConfig    `json:"traefik,omitempty"`
+	Host        string            `json:"host,omitempty"`
+	SSL         bool              `json:"ssl,omitempty"`
 }
 
-// TraefikConfig represents Traefik configuration in JSON
+// TraefikConfig Traefik configuration
 type TraefikConfig struct {
 	Enable              bool              `json:"enable"`
 	Host                string            `json:"host"`
@@ -37,28 +38,28 @@ type TraefikConfig struct {
 	CustomLabels        map[string]string `json:"custom_labels,omitempty"`
 }
 
-// DeployResponse represents the JSON response for deployment
+// DeployResponse response for deployment
 type DeployResponse struct {
 	DeploymentID string `json:"deployment_id"`
 	Status       string `json:"status"`
 	Message      string `json:"message"`
 }
 
-// DeleteResponse represents the JSON response for deletion
+// DeleteResponse response for deletion
 type DeleteResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 }
 
-// StatusResponse represents the JSON response for status
+// StatusResponse response for status
 type StatusResponse struct {
-	DeploymentID     string              `json:"deployment_id"`
-	JobStatus        string              `json:"job_status"`
-	JobType          string              `json:"job_type"`
-	DesiredInstances int32               `json:"desired_instances"`
-	RunningInstances int32               `json:"running_instances"`
-	Allocations      []AllocationStatus  `json:"allocations"`
-	Message          string              `json:"message"`
+	DeploymentID     string             `json:"deployment_id"`
+	JobStatus        string             `json:"job_status"`
+	JobType          string             `json:"job_type"`
+	DesiredInstances int32              `json:"desired_instances"`
+	RunningInstances int32              `json:"running_instances"`
+	Allocations      []AllocationStatus `json:"allocations"`
+	Message          string             `json:"message"`
 }
 
 // AllocationStatus represents allocation status in JSON
@@ -111,19 +112,14 @@ func (s *Server) deployApplication(c echo.Context) error {
 	}
 
 	// Convert Traefik config
-	if req.Traefik != nil {
+	if req.Host != "" {
 		pbReq.Traefik = &pb.TraefikConfig{
-			Enable:              req.Traefik.Enable,
-			Host:                req.Traefik.Host,
-			Entrypoint:          req.Traefik.Entrypoint,
-			EnableSsl:           req.Traefik.EnableSSL,
-			SslHost:             req.Traefik.SSLHost,
-			CertResolver:        req.Traefik.CertResolver,
-			HealthCheckPath:     req.Traefik.HealthCheckPath,
-			HealthCheckInterval: req.Traefik.HealthCheckInterval,
-			PathPrefix:          req.Traefik.PathPrefix,
-			Middlewares:         req.Traefik.Middlewares,
-			CustomLabels:        req.Traefik.CustomLabels,
+			Enable:              true,
+			Host:                req.Host,
+			EnableSsl:           req.SSL,
+			Entrypoint:          "websecure",
+			HealthCheckPath:     "/",
+			HealthCheckInterval: "30s",
 		}
 	}
 
