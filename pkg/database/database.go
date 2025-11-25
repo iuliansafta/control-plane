@@ -1,35 +1,43 @@
 package database
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// DB wraps the SQL database connection
+// DB wraps the pgx database connection pool
 type DB struct {
-	*sql.DB
+	*pgxpool.Pool
 }
 
-// New creates a new database connection
+// New creates a new database connection pool
 func New(connectionString string) (*DB, error) {
-	db, err := sql.Open("postgres", connectionString)
+	config, err := pgxpool.ParseConfig(connectionString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, fmt.Errorf("failed to parse connection string: %w", err)
 	}
 
-	if err := db.Ping(); err != nil {
+	// Set connection pool configuration
+	config.MaxConns = 25
+	config.MinConns = 5
+
+	pool, err := pgxpool.NewWithConfig(context.Background(), config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create connection pool: %w", err)
+	}
+
+	// Verify connection
+	if err := pool.Ping(context.Background()); err != nil {
+		pool.Close()
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5)
-
-	return &DB{db}, nil
+	return &DB{pool}, nil
 }
 
-// Close closes the database connection
-func (db *DB) Close() error {
-	return db.DB.Close()
+// Close closes the database connection pool
+func (db *DB) Close() {
+	db.Pool.Close()
 }

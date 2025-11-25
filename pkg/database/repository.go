@@ -1,11 +1,12 @@
 package database
 
 import (
-	"database/sql"
+	"context"
 	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 // APIKey API key in the database
@@ -28,7 +29,7 @@ func NewAPIKeyRepository(db *DB) *APIKeyRepository {
 // Create creates a new API key
 func (r *APIKeyRepository) Create(name, keyHash string) (*APIKey, error) {
 	var key APIKey
-	err := r.db.QueryRow(`
+	err := r.db.QueryRow(context.Background(), `
 		INSERT INTO api_keys (name, key_hash)
 		VALUES ($1, $2)
 		RETURNING id, name, key_hash, is_active, created_at
@@ -44,14 +45,14 @@ func (r *APIKeyRepository) Create(name, keyHash string) (*APIKey, error) {
 // GetByHash retrieves an API key by its hash
 func (r *APIKeyRepository) GetByHash(keyHash string) (*APIKey, error) {
 	var key APIKey
-	err := r.db.QueryRow(`
+	err := r.db.QueryRow(context.Background(), `
 		SELECT id, name, key_hash, is_active, created_at
 		FROM api_keys
 		WHERE key_hash = $1
 	`, keyHash).Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt)
 
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
@@ -63,14 +64,14 @@ func (r *APIKeyRepository) GetByHash(keyHash string) (*APIKey, error) {
 // GetByID retrieves an API key by its ID
 func (r *APIKeyRepository) GetByID(id uuid.UUID) (*APIKey, error) {
 	var key APIKey
-	err := r.db.QueryRow(`
+	err := r.db.QueryRow(context.Background(), `
 		SELECT id, name, key_hash, is_active, created_at
 		FROM api_keys
 		WHERE id = $1
 	`, id).Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt)
 
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
@@ -81,7 +82,7 @@ func (r *APIKeyRepository) GetByID(id uuid.UUID) (*APIKey, error) {
 
 // List retrieves all API keys
 func (r *APIKeyRepository) List() ([]APIKey, error) {
-	rows, err := r.db.Query(`
+	rows, err := r.db.Query(context.Background(), `
 		SELECT id, name, key_hash, is_active, created_at
 		FROM api_keys
 		ORDER BY created_at DESC
@@ -105,18 +106,13 @@ func (r *APIKeyRepository) List() ([]APIKey, error) {
 
 // Delete deletes an API key by its ID
 func (r *APIKeyRepository) Delete(id uuid.UUID) error {
-	result, err := r.db.Exec(`DELETE FROM api_keys WHERE id = $1`, id)
+	result, err := r.db.Exec(context.Background(), `DELETE FROM api_keys WHERE id = $1`, id)
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rowsAffected == 0 {
-		return sql.ErrNoRows
+	if result.RowsAffected() == 0 {
+		return pgx.ErrNoRows
 	}
 
 	return nil
@@ -124,18 +120,13 @@ func (r *APIKeyRepository) Delete(id uuid.UUID) error {
 
 // Deactivate deactivates an API key
 func (r *APIKeyRepository) Deactivate(id uuid.UUID) error {
-	result, err := r.db.Exec(`UPDATE api_keys SET is_active = false WHERE id = $1`, id)
+	result, err := r.db.Exec(context.Background(), `UPDATE api_keys SET is_active = false WHERE id = $1`, id)
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rowsAffected == 0 {
-		return sql.ErrNoRows
+	if result.RowsAffected() == 0 {
+		return pgx.ErrNoRows
 	}
 
 	return nil
@@ -144,6 +135,6 @@ func (r *APIKeyRepository) Deactivate(id uuid.UUID) error {
 // Count returns the total number of API keys
 func (r *APIKeyRepository) Count() (int, error) {
 	var count int
-	err := r.db.QueryRow(`SELECT COUNT(*) FROM api_keys`).Scan(&count)
+	err := r.db.QueryRow(context.Background(), `SELECT COUNT(*) FROM api_keys`).Scan(&count)
 	return count, err
 }

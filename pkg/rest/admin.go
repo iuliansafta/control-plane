@@ -19,7 +19,7 @@ type CreateKeyResponse struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// APIKeyInfo represents an API key in list responses (without the key itself)
+// APIKeyInfo represents an API key in list responses
 type APIKeyInfo struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
