@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -19,6 +20,34 @@ type APIKeyService struct {
 // NewAPIKeyService creates a new API key service
 func NewAPIKeyService(repo *database.APIKeyRepository) *APIKeyService {
 	return &APIKeyService{repo: repo}
+}
+
+// CreateKeyForUser creates a new API key for a specific user
+// Returns the plaintext key (show once) and the created API key record
+func (s *APIKeyService) CreateKeyForUser(ctx context.Context, userID uuid.UUID, name string) (string, *database.APIKey, error) {
+	plainKey, err := GenerateKey()
+	if err != nil {
+		return "", nil, err
+	}
+
+	keyHash := HashKey(plainKey)
+
+	apiKey, err := s.repo.CreateForUser(ctx, userID, name, keyHash)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to create API key: %w", err)
+	}
+
+	return plainKey, apiKey, nil
+}
+
+// ListKeysByUser returns all API keys for a specific user
+func (s *APIKeyService) ListKeysByUser(ctx context.Context, userID uuid.UUID) ([]database.APIKey, error) {
+	return s.repo.ListByUserID(ctx, userID)
+}
+
+// GetKeyByID returns an API key by ID
+func (s *APIKeyService) GetKeyByID(keyID uuid.UUID) (*database.APIKey, error) {
+	return s.repo.GetByID(keyID)
 }
 
 // GenerateKey generates a new random API key

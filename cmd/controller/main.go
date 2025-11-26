@@ -39,19 +39,41 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialize repositories and services
+	// Initialize repositories
 	apiKeyRepo := database.NewAPIKeyRepository(db)
-	authSvc := auth.NewAPIKeyService(apiKeyRepo)
+	userRepo := database.NewUserRepository(db)
+	refreshTokenRepo := database.NewRefreshTokenRepository(db)
+
+	// Initialize services
+	apiKeySvc := auth.NewAPIKeyService(apiKeyRepo)
+
+	// JWT secret validation
+	if cfg.JWTSecret == "" {
+		log.Fatal("JWT_SECRET environment variable is required for user authentication")
+	}
+	if len(cfg.JWTSecret) < 32 {
+		log.Fatal("JWT_SECRET must be at least 32 characters long")
+	}
+
+	// Initialize JWT service with token durations
+	jwtService := auth.NewJWTService(
+		cfg.JWTSecret,
+		15*time.Minute, // Access token: 15 minutes
+		7*24*time.Hour, // Refresh token: 7 days
+	)
+
+	// Initialize user service
+	userSvc := auth.NewUserService(userRepo, refreshTokenRepo, jwtService)
 
 	// Bootstrap initial API key if requested
 	if cfg.BootstrapKey != "" {
-		count, err := authSvc.KeyCount()
+		count, err := apiKeySvc.KeyCount()
 		if err != nil {
 			log.Fatalf("Failed to check API key count: %v", err)
 		}
 
 		if count == 0 {
-			plainKey, apiKey, err := authSvc.CreateKey(cfg.BootstrapKey)
+			plainKey, apiKey, err := apiKeySvc.CreateKey(cfg.BootstrapKey)
 			if err != nil {
 				log.Fatalf("Failed to create bootstrap API key: %v", err)
 			}
@@ -79,7 +101,7 @@ func main() {
 	pb.RegisterControlPlaneServer(grpcServer, appService)
 
 	// Create REST server
-	restServer := rest.NewServer(appService, authSvc, cfg.HttpPort)
+	restServer := rest.NewServer(appService, apiKeySvc, userSvc, cfg.HttpPort)
 
 	// Start gRPC server
 	go func() {

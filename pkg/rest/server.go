@@ -17,15 +17,15 @@ type Server struct {
 	echo       *echo.Echo
 	appService *api.ApplicationService
 	authSvc    *auth.APIKeyService
+	userSvc    *auth.UserService
 	port       string
 }
 
 // NewServer creates a new REST API server
-func NewServer(appService *api.ApplicationService, authSvc *auth.APIKeyService, port string) *Server {
+func NewServer(appService *api.ApplicationService, authSvc *auth.APIKeyService, userSvc *auth.UserService, port string) *Server {
 	e := echo.New()
 	e.HideBanner = true
 
-	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
@@ -34,10 +34,10 @@ func NewServer(appService *api.ApplicationService, authSvc *auth.APIKeyService, 
 		echo:       e,
 		appService: appService,
 		authSvc:    authSvc,
+		userSvc:    userSvc,
 		port:       port,
 	}
 
-	// Setup routes
 	server.setupRoutes()
 
 	return server
@@ -45,19 +45,35 @@ func NewServer(appService *api.ApplicationService, authSvc *auth.APIKeyService, 
 
 // setupRoutes configures all API routes
 func (s *Server) setupRoutes() {
-	// Health check (public)
 	s.echo.GET("/api/v1/health", s.healthCheck)
 
-	// API v1 routes (authenticated)
+	// Authentication routes
+	auth := s.echo.Group("/api/v1/auth")
+	auth.POST("/register", s.register)
+	auth.POST("/login", s.login)
+	auth.POST("/refresh", s.refreshToken)
+	auth.POST("/logout", s.logout)
+
+	// Protected auth routes
+	auth.GET("/me", s.getCurrentUser, s.jwtOnlyMiddleware)
+
+	// API v1 routes (authenticated with either JWT or API key)
 	v1 := s.echo.Group("/api/v1")
 	v1.Use(s.authMiddleware)
 
-	// Application operations
+	// Application operations (accept both JWT and API key)
 	v1.POST("/applications", s.deployApplication)
 	v1.DELETE("/applications/:id", s.deleteApplication)
 	v1.GET("/applications/:id/status", s.getApplicationStatus)
 
-	// Admin operations
+	// User API key management (require JWT only)
+	userKeys := v1.Group("/user/keys")
+	userKeys.Use(s.jwtOnlyMiddleware)
+	userKeys.POST("", s.createUserAPIKey)
+	userKeys.GET("", s.listUserAPIKeys)
+	userKeys.DELETE("/:id", s.deleteUserAPIKey)
+
+	// Admin operations (accept both JWT and API key, but should check permissions)
 	admin := v1.Group("/admin")
 	admin.POST("/keys", s.createAPIKey)
 	admin.GET("/keys", s.listAPIKeys)

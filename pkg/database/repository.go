@@ -11,11 +11,13 @@ import (
 
 // APIKey API key in the database
 type APIKey struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	KeyHash   string    `json:"-"`
-	IsActive  bool      `json:"is_active"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uuid.UUID  `json:"id"`
+	UserID    *uuid.UUID `json:"user_id,omitempty"`
+	Name      string     `json:"name"`
+	KeyHash   string     `json:"-"`
+	IsActive  bool       `json:"is_active"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 type APIKeyRepository struct {
@@ -32,8 +34,24 @@ func (r *APIKeyRepository) Create(name, keyHash string) (*APIKey, error) {
 	err := r.db.QueryRow(context.Background(), `
 		INSERT INTO api_keys (name, key_hash)
 		VALUES ($1, $2)
-		RETURNING id, name, key_hash, is_active, created_at
-	`, name, keyHash).Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt)
+		RETURNING id, user_id, name, key_hash, is_active, created_at, updated_at
+	`, name, keyHash).Scan(&key.ID, &key.UserID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt, &key.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &key, nil
+}
+
+// CreateForUser creates a new API key associated with a user
+func (r *APIKeyRepository) CreateForUser(ctx context.Context, userID uuid.UUID, name, keyHash string) (*APIKey, error) {
+	var key APIKey
+	err := r.db.QueryRow(ctx, `
+		INSERT INTO api_keys (user_id, name, key_hash)
+		VALUES ($1, $2, $3)
+		RETURNING id, user_id, name, key_hash, is_active, created_at, updated_at
+	`, userID, name, keyHash).Scan(&key.ID, &key.UserID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt, &key.UpdatedAt)
 
 	if err != nil {
 		return nil, err
@@ -46,10 +64,10 @@ func (r *APIKeyRepository) Create(name, keyHash string) (*APIKey, error) {
 func (r *APIKeyRepository) GetByHash(keyHash string) (*APIKey, error) {
 	var key APIKey
 	err := r.db.QueryRow(context.Background(), `
-		SELECT id, name, key_hash, is_active, created_at
+		SELECT id, user_id, name, key_hash, is_active, created_at, updated_at
 		FROM api_keys
 		WHERE key_hash = $1
-	`, keyHash).Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt)
+	`, keyHash).Scan(&key.ID, &key.UserID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt, &key.UpdatedAt)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -65,10 +83,10 @@ func (r *APIKeyRepository) GetByHash(keyHash string) (*APIKey, error) {
 func (r *APIKeyRepository) GetByID(id uuid.UUID) (*APIKey, error) {
 	var key APIKey
 	err := r.db.QueryRow(context.Background(), `
-		SELECT id, name, key_hash, is_active, created_at
+		SELECT id, user_id, name, key_hash, is_active, created_at, updated_at
 		FROM api_keys
 		WHERE id = $1
-	`, id).Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt)
+	`, id).Scan(&key.ID, &key.UserID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt, &key.UpdatedAt)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -83,7 +101,7 @@ func (r *APIKeyRepository) GetByID(id uuid.UUID) (*APIKey, error) {
 // List retrieves all API keys
 func (r *APIKeyRepository) List() ([]APIKey, error) {
 	rows, err := r.db.Query(context.Background(), `
-		SELECT id, name, key_hash, is_active, created_at
+		SELECT id, user_id, name, key_hash, is_active, created_at, updated_at
 		FROM api_keys
 		ORDER BY created_at DESC
 	`)
@@ -95,7 +113,32 @@ func (r *APIKeyRepository) List() ([]APIKey, error) {
 	var keys []APIKey
 	for rows.Next() {
 		var key APIKey
-		if err := rows.Scan(&key.ID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt); err != nil {
+		if err := rows.Scan(&key.ID, &key.UserID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt, &key.UpdatedAt); err != nil {
+			return nil, err
+		}
+		keys = append(keys, key)
+	}
+
+	return keys, rows.Err()
+}
+
+// ListByUserID retrieves all API keys for a specific user
+func (r *APIKeyRepository) ListByUserID(ctx context.Context, userID uuid.UUID) ([]APIKey, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT id, user_id, name, key_hash, is_active, created_at, updated_at
+		FROM api_keys
+		WHERE user_id = $1
+		ORDER BY created_at DESC
+	`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var keys []APIKey
+	for rows.Next() {
+		var key APIKey
+		if err := rows.Scan(&key.ID, &key.UserID, &key.Name, &key.KeyHash, &key.IsActive, &key.CreatedAt, &key.UpdatedAt); err != nil {
 			return nil, err
 		}
 		keys = append(keys, key)

@@ -83,14 +83,12 @@ func (s *Server) deployApplication(c echo.Context) error {
 		})
 	}
 
-	// Validate required fields
 	if req.Name == "" || req.Image == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "name and image are required",
 		})
 	}
 
-	// Convert to protobuf request
 	pbReq := &pb.DeployRequest{
 		Name:     req.Name,
 		Image:    req.Image,
@@ -101,7 +99,6 @@ func (s *Server) deployApplication(c echo.Context) error {
 		Labels:   req.Labels,
 	}
 
-	// Set network mode
 	switch req.NetworkMode {
 	case "bridge":
 		pbReq.NetworkMode = pb.NetworkMode_NETWORK_MODE_BRIDGE
@@ -111,7 +108,6 @@ func (s *Server) deployApplication(c echo.Context) error {
 		pbReq.NetworkMode = pb.NetworkMode_NETWORK_MODE_HOST
 	}
 
-	// Convert Traefik config
 	if req.Host != "" {
 		pbReq.Traefik = &pb.TraefikConfig{
 			Enable:              true,
@@ -123,7 +119,6 @@ func (s *Server) deployApplication(c echo.Context) error {
 		}
 	}
 
-	// Call the application service
 	resp, err := s.appService.DeployApplication(context.Background(), pbReq)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
@@ -191,7 +186,6 @@ func (s *Server) getApplicationStatus(c echo.Context) error {
 		})
 	}
 
-	// Convert allocations
 	allocations := make([]AllocationStatus, len(resp.Allocations))
 	for i, alloc := range resp.Allocations {
 		allocations[i] = AllocationStatus{

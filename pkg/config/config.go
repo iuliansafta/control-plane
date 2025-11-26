@@ -8,6 +8,7 @@ type Config struct {
 	NomadAddr    string
 	DBConnection string
 	BootstrapKey string
+	JWTSecret    string
 }
 
 func LoadConfig() *Config {
@@ -17,5 +18,6 @@ func LoadConfig() *Config {
 		NomadAddr:    utils.GetEnv("NOMAD_ADDR", "http://localhost:4646"),
 		DBConnection: utils.GetEnv("DATABASE_URL", "postgres://postgres@localhost:5432/control-plane"),
 		BootstrapKey: utils.GetEnv("BOOTSTRAP_KEY", ""),
+		JWTSecret:    utils.GetEnv("JWT_SECRET", ""),
 	}
 }

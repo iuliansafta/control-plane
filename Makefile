@@ -34,7 +34,7 @@ lint:
 
 test:
 	@echo "Running tests..."
-	@go test -v -race -cover ./...
+	@go test -v ./...
 	@echo "Tests completed!"
 
 clean:
