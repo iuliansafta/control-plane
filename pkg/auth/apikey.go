@@ -23,7 +23,7 @@ func NewAPIKeyService(repo *database.APIKeyRepository) *APIKeyService {
 }
 
 // CreateKeyForUser creates a new API key for a specific user
-// Returns the plaintext key (show once) and the created API key record
+// Returns the plaintext key and the created API key record
 func (s *APIKeyService) CreateKeyForUser(ctx context.Context, userID uuid.UUID, name string) (string, *database.APIKey, error) {
 	plainKey, err := GenerateKey()
 	if err != nil {
@@ -66,7 +66,7 @@ func HashKey(key string) string {
 }
 
 // CreateKey creates a new API key with the given name
-// Returns the plaintext key (show once) and the created API key record
+// Returns the plaintext key and the created API key record
 func (s *APIKeyService) CreateKey(name string) (string, *database.APIKey, error) {
 	plainKey, err := GenerateKey()
 	if err != nil {

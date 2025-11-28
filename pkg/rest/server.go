@@ -19,7 +19,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
-	_ "github.com/iuliansafta/control-plane/docs" // Import docs for Swagger
+	_ "github.com/iuliansafta/control-plane/docs"
 	"github.com/iuliansafta/control-plane/pkg/api"
 	"github.com/iuliansafta/control-plane/pkg/auth"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -42,7 +42,7 @@ func NewServer(appService *api.ApplicationService, authSvc *auth.APIKeyService, 
 	e := echo.New()
 	e.HideBanner = true
 
-	e.Use(otelecho.Middleware("vorhash-control-plane"))
+	e.Use(otelecho.Middleware("vorash-control-plane"))
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
@@ -76,7 +76,7 @@ func (s *Server) setupRoutes() {
 	// Protected auth routes
 	auth.GET("/me", s.getCurrentUser, s.jwtOnlyMiddleware)
 
-	// API v1 routes (authenticated with either JWT or API key)
+	// API v1 routes (accept both JWT and API key)
 	v1 := s.echo.Group("/api/v1")
 	v1.Use(s.authMiddleware)
 
@@ -92,7 +92,7 @@ func (s *Server) setupRoutes() {
 	userKeys.GET("", s.listUserAPIKeys)
 	userKeys.DELETE("/:id", s.deleteUserAPIKey)
 
-	// Admin operations (accept both JWT and API key, but should check permissions)
+	// Admin operations (accept both JWT and API key. TODO: should check permissions)
 	admin := v1.Group("/admin")
 	admin.POST("/keys", s.createAPIKey)
 	admin.GET("/keys", s.listAPIKeys)

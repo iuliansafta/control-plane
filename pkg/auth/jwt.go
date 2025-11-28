@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// TokenType represents the type of JWT token
+// TokenType type of JWT token
 type TokenType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	RefreshToken TokenType = "refresh"
 )
 
-// JWTClaims represents the custom claims for JWT tokens
+// JWTClaims custom claims for JWT tokens
 type JWTClaims struct {
 	UserID    string    `json:"user_id"`
 	Email     string    `json:"email"`
@@ -71,7 +71,6 @@ func (s *JWTService) GenerateAccessToken(userID uuid.UUID, email, name string) (
 }
 
 // GenerateRefreshToken generates a new random refresh token string
-// This is a random token stored in the database, not a JWT
 func (s *JWTService) GenerateRefreshToken() (string, error) {
 	bytes := make([]byte, 32)
 	if _, err := rand.Read(bytes); err != nil {
@@ -88,7 +87,6 @@ func (s *JWTService) GetRefreshTokenExpiry() time.Time {
 // ValidateToken validates and parses a JWT token
 func (s *JWTService) ValidateToken(tokenString string) (*JWTClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (any, error) {
-		// Verify signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -104,7 +102,6 @@ func (s *JWTService) ValidateToken(tokenString string) (*JWTClaims, error) {
 		return nil, fmt.Errorf("invalid token claims")
 	}
 
-	// Verify token type is access token
 	if claims.TokenType != AccessToken {
 		return nil, fmt.Errorf("invalid token type: expected access token")
 	}

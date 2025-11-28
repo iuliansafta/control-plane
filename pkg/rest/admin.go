@@ -15,7 +15,7 @@ type CreateKeyRequest struct {
 type CreateKeyResponse struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
-	Key       string `json:"key"` // Returned once on creation
+	Key       string `json:"key"`
 	CreatedAt string `json:"created_at"`
 }
 

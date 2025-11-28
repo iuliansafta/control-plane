@@ -19,7 +19,6 @@ func New(connectionString string) (*DB, error) {
 		return nil, fmt.Errorf("failed to parse connection string: %w", err)
 	}
 
-	// Set connection pool configuration
 	config.MaxConns = 25
 	config.MinConns = 5
 
@@ -28,7 +27,6 @@ func New(connectionString string) (*DB, error) {
 		return nil, fmt.Errorf("failed to create connection pool: %w", err)
 	}
 
-	// Verify connection
 	if err := pool.Ping(context.Background()); err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("failed to ping database: %w", err)

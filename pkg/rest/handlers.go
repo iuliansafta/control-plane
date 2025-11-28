@@ -62,7 +62,7 @@ type StatusResponse struct {
 	Message          string             `json:"message"`
 }
 
-// AllocationStatus represents allocation status in JSON
+// AllocationStatus allocation status in JSON
 type AllocationStatus struct {
 	AllocationID  string            `json:"allocation_id"`
 	NodeID        string            `json:"node_id"`

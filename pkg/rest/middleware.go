@@ -59,7 +59,7 @@ func (s *Server) authMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// jwtOnlyMiddleware requires JWT authentication only (for user-specific endpoints)
+// jwtOnlyMiddleware requires JWT authentication only
 func (s *Server) jwtOnlyMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")

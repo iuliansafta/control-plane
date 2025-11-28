@@ -6,12 +6,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// CreateUserKeyRequest represents the JSON request for creating a user API key
+// CreateUserKeyRequest JSON request for creating a user API key
 type CreateUserKeyRequest struct {
 	Name string `json:"name" validate:"required"`
 }
 
-// CreateUserKeyResponse represents the JSON response for creating a user API key
+// CreateUserKeyResponse JSON response for creating a user API key
 type CreateUserKeyResponse struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
@@ -20,7 +20,7 @@ type CreateUserKeyResponse struct {
 	Message   string `json:"message"`
 }
 
-// UserAPIKeyInfo represents a user API key in list responses
+// UserAPIKeyInfo user API key in list responses
 type UserAPIKeyInfo struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
@@ -42,7 +42,6 @@ type UserAPIKeyInfo struct {
 // @Failure 500 {object} map[string]string
 // @Router /user/keys [post]
 func (s *Server) createUserAPIKey(c echo.Context) error {
-	// Get user ID from context (set by JWT middleware)
 	userIDStr, ok := c.Get(UserContextKey).(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
@@ -100,7 +99,6 @@ func (s *Server) createUserAPIKey(c echo.Context) error {
 // @Failure 500 {object} map[string]string
 // @Router /user/keys [get]
 func (s *Server) listUserAPIKeys(c echo.Context) error {
-	// Get user ID from context (set by JWT middleware)
 	userIDStr, ok := c.Get(UserContextKey).(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
@@ -152,7 +150,6 @@ func (s *Server) listUserAPIKeys(c echo.Context) error {
 // @Failure 500 {object} map[string]string
 // @Router /user/keys/{id} [delete]
 func (s *Server) deleteUserAPIKey(c echo.Context) error {
-	// Get user ID from context (set by JWT middleware)
 	userIDStr, ok := c.Get(UserContextKey).(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{

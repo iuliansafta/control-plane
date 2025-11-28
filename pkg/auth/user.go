@@ -14,18 +14,16 @@ import (
 )
 
 const (
-	// bcrypt cost factor (higher = more secure but slower)
 	bcryptCost = 12
 )
 
-// UserService handles user authentication operations
+// UserService user authentication operations
 type UserService struct {
 	userRepo         *database.UserRepository
 	refreshTokenRepo *database.RefreshTokenRepository
 	jwtService       *JWTService
 }
 
-// NewUserService creates a new user authentication service
 func NewUserService(
 	userRepo *database.UserRepository,
 	refreshTokenRepo *database.RefreshTokenRepository,
@@ -40,7 +38,6 @@ func NewUserService(
 
 // RegisterUser registers a new user with email and password
 func (s *UserService) RegisterUser(ctx context.Context, name, email, password string) (*database.User, error) {
-	// Check if user already exists
 	existingUser, err := s.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check existing user: %w", err)
@@ -49,13 +46,11 @@ func (s *UserService) RegisterUser(ctx context.Context, name, email, password st
 		return nil, fmt.Errorf("user with email %s already exists", email)
 	}
 
-	// Hash the password
 	passwordHash, err := hashPassword(password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// Create the user
 	user, err := s.userRepo.Create(ctx, name, email, passwordHash)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
@@ -66,7 +61,6 @@ func (s *UserService) RegisterUser(ctx context.Context, name, email, password st
 
 // LoginUser authenticates a user and returns access and refresh tokens
 func (s *UserService) LoginUser(ctx context.Context, email, password string) (accessToken, refreshToken string, user *database.User, err error) {
-	// Get user by email
 	user, err = s.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		return "", "", nil, fmt.Errorf("failed to get user: %w", err)
@@ -75,39 +69,32 @@ func (s *UserService) LoginUser(ctx context.Context, email, password string) (ac
 		return "", "", nil, fmt.Errorf("invalid email or password")
 	}
 
-	// Check if user is active
 	if !user.IsActive {
 		return "", "", nil, fmt.Errorf("user account is inactive")
 	}
-
-	// Verify password
 	if !verifyPassword(password, user.PasswordHash) {
 		return "", "", nil, fmt.Errorf("invalid email or password")
 	}
 
-	// Generate access token (JWT)
 	accessToken, err = s.jwtService.GenerateAccessToken(user.ID, user.Email, user.Name)
 	if err != nil {
 		return "", "", nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 
-	// Generate refresh token (random string)
 	refreshToken, err = s.jwtService.GenerateRefreshToken()
 	if err != nil {
 		return "", "", nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 
-	// Store refresh token in database
 	tokenHash := hashRefreshToken(refreshToken)
 	expiresAt := s.jwtService.GetRefreshTokenExpiry()
+
 	_, err = s.refreshTokenRepo.Create(ctx, user.ID, tokenHash, expiresAt)
 	if err != nil {
 		return "", "", nil, fmt.Errorf("failed to store refresh token: %w", err)
 	}
 
-	// Update last login
 	if err := s.userRepo.UpdateLastLogin(ctx, user.ID); err != nil {
-		// Log error but don't fail the login
 		fmt.Printf("Warning: failed to update last login for user %s: %v\n", user.ID, err)
 	}
 
@@ -116,10 +103,8 @@ func (s *UserService) LoginUser(ctx context.Context, email, password string) (ac
 
 // RefreshAccessToken generates a new access token using a refresh token
 func (s *UserService) RefreshAccessToken(ctx context.Context, refreshToken string) (accessToken string, newRefreshToken string, err error) {
-	// Hash the refresh token to look it up
 	tokenHash := hashRefreshToken(refreshToken)
 
-	// Get refresh token from database
 	storedToken, err := s.refreshTokenRepo.GetByTokenHash(ctx, tokenHash)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to get refresh token: %w", err)
@@ -128,17 +113,14 @@ func (s *UserService) RefreshAccessToken(ctx context.Context, refreshToken strin
 		return "", "", fmt.Errorf("invalid refresh token")
 	}
 
-	// Check if token is expired
 	if time.Now().After(storedToken.ExpiresAt) {
 		return "", "", fmt.Errorf("refresh token expired")
 	}
 
-	// Check if token is revoked
 	if storedToken.IsRevoked {
 		return "", "", fmt.Errorf("refresh token has been revoked")
 	}
 
-	// Get user
 	user, err := s.userRepo.GetByID(ctx, storedToken.UserID)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to get user: %w", err)
@@ -147,29 +129,24 @@ func (s *UserService) RefreshAccessToken(ctx context.Context, refreshToken strin
 		return "", "", fmt.Errorf("user not found")
 	}
 
-	// Check if user is active
 	if !user.IsActive {
 		return "", "", fmt.Errorf("user account is inactive")
 	}
 
-	// Generate new access token
 	accessToken, err = s.jwtService.GenerateAccessToken(user.ID, user.Email, user.Name)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to generate access token: %w", err)
 	}
 
-	// Generate new refresh token (token rotation)
 	newRefreshToken, err = s.jwtService.GenerateRefreshToken()
 	if err != nil {
 		return "", "", fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 
-	// Revoke old refresh token
 	if err := s.refreshTokenRepo.Revoke(ctx, tokenHash); err != nil {
 		return "", "", fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
 
-	// Store new refresh token
 	newTokenHash := hashRefreshToken(newRefreshToken)
 	expiresAt := s.jwtService.GetRefreshTokenExpiry()
 	_, err = s.refreshTokenRepo.Create(ctx, user.ID, newTokenHash, expiresAt)
@@ -209,7 +186,6 @@ func (s *UserService) GetUserByID(ctx context.Context, userID uuid.UUID) (*datab
 
 // ChangePassword changes a user's password
 func (s *UserService) ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error {
-	// Get user
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("failed to get user: %w", err)
@@ -218,25 +194,20 @@ func (s *UserService) ChangePassword(ctx context.Context, userID uuid.UUID, oldP
 		return fmt.Errorf("user not found")
 	}
 
-	// Verify old password
 	if !verifyPassword(oldPassword, user.PasswordHash) {
 		return fmt.Errorf("invalid old password")
 	}
 
-	// Hash new password
 	newPasswordHash, err := hashPassword(newPassword)
 	if err != nil {
 		return fmt.Errorf("failed to hash new password: %w", err)
 	}
 
-	// Update password
 	if err := s.userRepo.UpdatePassword(ctx, userID, newPasswordHash); err != nil {
 		return fmt.Errorf("failed to update password: %w", err)
 	}
 
-	// Revoke all refresh tokens (force re-login on all devices)
 	if err := s.refreshTokenRepo.RevokeAllByUserID(ctx, userID); err != nil {
-		// Log error but don't fail the password change
 		fmt.Printf("Warning: failed to revoke tokens for user %s: %v\n", userID, err)
 	}
 
@@ -250,12 +221,10 @@ func (s *UserService) VerifyEmail(ctx context.Context, userID uuid.UUID) error {
 
 // DeactivateUser deactivates a user account
 func (s *UserService) DeactivateUser(ctx context.Context, userID uuid.UUID) error {
-	// Deactivate user
 	if err := s.userRepo.UpdateActive(ctx, userID, false); err != nil {
 		return fmt.Errorf("failed to deactivate user: %w", err)
 	}
 
-	// Revoke all refresh tokens
 	if err := s.refreshTokenRepo.RevokeAllByUserID(ctx, userID); err != nil {
 		return fmt.Errorf("failed to revoke tokens: %w", err)
 	}
