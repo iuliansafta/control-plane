@@ -8,7 +8,8 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest && \
+    go install github.com/swaggo/swag/cmd/swag@latest
 
 COPY . .
 
@@ -16,6 +17,7 @@ RUN protoc --go_out=. --go_opt=paths=source_relative \
     --go-grpc_out=. --go-grpc_opt=paths=source_relative \
     api/proto/controlplane.proto
 
+RUN swag init -g cmd/controller/main.go
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o controller cmd/controller/main.go
 
 FROM alpine:latest
