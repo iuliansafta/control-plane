@@ -2,11 +2,22 @@ package rest
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"log"
 	"net/http"
 
+	"os"
+
+	"github.com/go-logr/stdr"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/propagation"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
 	"github.com/iuliansafta/control-plane/pkg/api"
 	"github.com/iuliansafta/control-plane/pkg/auth"
@@ -14,28 +25,33 @@ import (
 
 // Server the REST API server
 type Server struct {
-	echo       *echo.Echo
-	appService *api.ApplicationService
-	authSvc    *auth.APIKeyService
-	userSvc    *auth.UserService
-	port       string
+	echo           *echo.Echo
+	appService     *api.ApplicationService
+	authSvc        *auth.APIKeyService
+	userSvc        *auth.UserService
+	port           string
+	tracerProvider *sdktrace.TracerProvider
 }
 
 // NewServer creates a new REST API server
 func NewServer(appService *api.ApplicationService, authSvc *auth.APIKeyService, userSvc *auth.UserService, port string) *Server {
+	tp := initTracer()
+
 	e := echo.New()
 	e.HideBanner = true
 
+	e.Use(otelecho.Middleware("vorhash-control-plane"))
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
 	server := &Server{
-		echo:       e,
-		appService: appService,
-		authSvc:    authSvc,
-		userSvc:    userSvc,
-		port:       port,
+		echo:           e,
+		appService:     appService,
+		authSvc:        authSvc,
+		userSvc:        userSvc,
+		port:           port,
+		tracerProvider: tp,
 	}
 
 	server.setupRoutes()
@@ -88,6 +104,9 @@ func (s *Server) Start() error {
 
 // Shutdown gracefully shuts down the server
 func (s *Server) Shutdown(ctx context.Context) error {
+	if err := s.tracerProvider.Shutdown(ctx); err != nil {
+		log.Printf("Error shutting down tracer provider: %v", err)
+	}
 	return s.echo.Shutdown(ctx)
 }
 
@@ -96,4 +115,31 @@ func (s *Server) healthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"status": "healthy",
 	})
+}
+
+// initTracer initializes the OpenTelemetry tracer
+func initTracer() *sdktrace.TracerProvider {
+	otel.SetLogger(stdr.New(log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile)))
+
+	ctx := context.Background()
+	otlpExporter, err := otlptracehttp.New(ctx,
+		otlptracehttp.WithTLSClientConfig(&tls.Config{InsecureSkipVerify: true}),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stdoutExporter, err := stdout.New(stdout.WithPrettyPrint())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithBatcher(otlpExporter),
+		sdktrace.WithBatcher(stdoutExporter),
+	)
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	return tp
 }
