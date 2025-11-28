@@ -19,8 +19,10 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
+	_ "github.com/iuliansafta/control-plane/docs" // Import docs for Swagger
 	"github.com/iuliansafta/control-plane/pkg/api"
 	"github.com/iuliansafta/control-plane/pkg/auth"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 // Server the REST API server
@@ -62,6 +64,7 @@ func NewServer(appService *api.ApplicationService, authSvc *auth.APIKeyService, 
 // setupRoutes configures all API routes
 func (s *Server) setupRoutes() {
 	s.echo.GET("/api/v1/health", s.healthCheck)
+	s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// Authentication routes
 	auth := s.echo.Group("/api/v1/auth")
@@ -111,6 +114,13 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 // healthCheck handles health check requests
+// @Summary Health check
+// @Description Check if the server is healthy
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /health [get]
 func (s *Server) healthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"status": "healthy",

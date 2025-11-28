@@ -75,6 +75,18 @@ type AllocationStatus struct {
 }
 
 // deployApplication handles POST /api/v1/applications
+// @Summary Deploy an application
+// @Description Deploy a new application
+// @Tags applications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Param request body DeployRequest true "Deploy Request"
+// @Success 201 {object} DeployResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /applications [post]
 func (s *Server) deployApplication(c echo.Context) error {
 	var req DeployRequest
 	if err := c.Bind(&req); err != nil {
@@ -134,6 +146,18 @@ func (s *Server) deployApplication(c echo.Context) error {
 }
 
 // deleteApplication handles DELETE /api/v1/applications/:id
+// @Summary Delete an application
+// @Description Delete an application by ID
+// @Tags applications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Param id path string true "Deployment ID"
+// @Success 200 {object} DeleteResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /applications/{id} [delete]
 func (s *Server) deleteApplication(c echo.Context) error {
 	deploymentID := c.Param("id")
 	if deploymentID == "" {
@@ -167,6 +191,18 @@ func (s *Server) deleteApplication(c echo.Context) error {
 }
 
 // getApplicationStatus handles GET /api/v1/applications/:id/status
+// @Summary Get application status
+// @Description Get status of an application by ID
+// @Tags applications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Param id path string true "Deployment ID"
+// @Success 200 {object} StatusResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /applications/{id}/status [get]
 func (s *Server) getApplicationStatus(c echo.Context) error {
 	deploymentID := c.Param("id")
 	if deploymentID == "" {

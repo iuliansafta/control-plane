@@ -1,0 +1,738 @@
+basePath: /api/v1
+definitions:
+  rest.APIKeyInfo:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+    type: object
+  rest.AllocationStatus:
+    properties:
+      allocation_id:
+        type: string
+      create_time:
+        type: integer
+      desired_status:
+        type: string
+      modify_time:
+        type: integer
+      node_id:
+        type: string
+      node_name:
+        type: string
+      status:
+        type: string
+      task_states:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  rest.CreateKeyRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  rest.CreateKeyResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      key:
+        description: Returned once on creation
+        type: string
+      name:
+        type: string
+    type: object
+  rest.CreateUserKeyRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  rest.CreateUserKeyResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      key:
+        description: Returned once on creation
+        type: string
+      message:
+        type: string
+      name:
+        type: string
+    type: object
+  rest.DeleteResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  rest.DeployRequest:
+    properties:
+      cpu:
+        type: number
+      host:
+        type: string
+      image:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      memory:
+        type: integer
+      name:
+        type: string
+      network_mode:
+        type: string
+      region:
+        type: string
+      replicas:
+        type: integer
+      ssl:
+        type: boolean
+    type: object
+  rest.DeployResponse:
+    properties:
+      deployment_id:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  rest.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  rest.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+      user:
+        $ref: '#/definitions/rest.UserInfo'
+    type: object
+  rest.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  rest.RefreshTokenResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  rest.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  rest.RegisterResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  rest.StatusResponse:
+    properties:
+      allocations:
+        items:
+          $ref: '#/definitions/rest.AllocationStatus'
+        type: array
+      deployment_id:
+        type: string
+      desired_instances:
+        type: integer
+      job_status:
+        type: string
+      job_type:
+        type: string
+      message:
+        type: string
+      running_instances:
+        type: integer
+    type: object
+  rest.UserAPIKeyInfo:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+    type: object
+  rest.UserInfo:
+    properties:
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_login:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for the Control Plane service
+  title: Control Plane API
+  version: "1.0"
+paths:
+  /admin/keys:
+    get:
+      consumes:
+      - application/json
+      description: List all API keys (Admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/rest.APIKeyInfo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: List API keys
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      description: Create a new API key (Admin only)
+      parameters:
+      - description: Create Key Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.CreateKeyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.CreateKeyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Create an API key
+      tags:
+      - admin
+  /admin/keys/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an API key by ID (Admin only)
+      parameters:
+      - description: Key ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Delete an API key
+      tags:
+      - admin
+  /applications:
+    post:
+      consumes:
+      - application/json
+      description: Deploy a new application
+      parameters:
+      - description: Deploy Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.DeployRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.DeployResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Deploy an application
+      tags:
+      - applications
+  /applications/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an application by ID
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.DeleteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Delete an application
+      tags:
+      - applications
+  /applications/{id}/status:
+    get:
+      consumes:
+      - application/json
+      description: Get status of an application by ID
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.StatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Get application status
+      tags:
+      - applications
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password to get access token
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout user and revoke refresh token
+      parameters:
+      - description: Refresh Token Request
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/rest.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get information about the currently logged in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.UserInfo'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh access token using refresh token from cookie or body
+      parameters:
+      - description: Refresh Token Request
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/rest.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.RefreshTokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with name, email and password
+      parameters:
+      - description: Register Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check if the server is healthy
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - system
+  /user/keys:
+    get:
+      consumes:
+      - application/json
+      description: List all API keys for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/rest.UserAPIKeyInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List user API keys
+      tags:
+      - user_keys
+    post:
+      consumes:
+      - application/json
+      description: Create a new API key for the current user
+      parameters:
+      - description: Create User Key Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.CreateUserKeyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.CreateUserKeyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a user API key
+      tags:
+      - user_keys
+  /user/keys/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user API key by ID
+      parameters:
+      - description: Key ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a user API key
+      tags:
+      - user_keys
+swagger: "2.0"

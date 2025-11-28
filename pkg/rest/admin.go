@@ -28,6 +28,18 @@ type APIKeyInfo struct {
 }
 
 // createAPIKey handles POST /api/v1/admin/keys
+// @Summary Create an API key
+// @Description Create a new API key (Admin only)
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Param request body CreateKeyRequest true "Create Key Request"
+// @Success 201 {object} CreateKeyResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /admin/keys [post]
 func (s *Server) createAPIKey(c echo.Context) error {
 	var req CreateKeyRequest
 	if err := c.Bind(&req); err != nil {
@@ -59,6 +71,16 @@ func (s *Server) createAPIKey(c echo.Context) error {
 }
 
 // listAPIKeys handles GET /api/v1/admin/keys
+// @Summary List API keys
+// @Description List all API keys (Admin only)
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Success 200 {object} []APIKeyInfo
+// @Failure 500 {object} map[string]string
+// @Router /admin/keys [get]
 func (s *Server) listAPIKeys(c echo.Context) error {
 	keys, err := s.authSvc.ListKeys()
 	if err != nil {
@@ -81,6 +103,18 @@ func (s *Server) listAPIKeys(c echo.Context) error {
 }
 
 // deleteAPIKey handles DELETE /api/v1/admin/keys/:id
+// @Summary Delete an API key
+// @Description Delete an API key by ID (Admin only)
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Param id path string true "Key ID"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /admin/keys/{id} [delete]
 func (s *Server) deleteAPIKey(c echo.Context) error {
 	keyID := c.Param("id")
 	if keyID == "" {

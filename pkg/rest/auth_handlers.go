@@ -79,6 +79,15 @@ type UserInfo struct {
 }
 
 // register handles POST /api/v1/auth/register
+// @Summary Register a new user
+// @Description Register a new user with name, email and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "Register Request"
+// @Success 201 {object} RegisterResponse
+// @Failure 400 {object} map[string]string
+// @Router /auth/register [post]
 func (s *Server) register(c echo.Context) error {
 	var req RegisterRequest
 	if err := c.Bind(&req); err != nil {
@@ -116,6 +125,16 @@ func (s *Server) register(c echo.Context) error {
 }
 
 // login handles POST /api/v1/auth/login
+// @Summary Login user
+// @Description Login with email and password to get access token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login Request"
+// @Success 200 {object} LoginResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /auth/login [post]
 func (s *Server) login(c echo.Context) error {
 	var req LoginRequest
 	if err := c.Bind(&req); err != nil {
@@ -178,6 +197,16 @@ func (s *Server) login(c echo.Context) error {
 }
 
 // refreshToken handles POST /api/v1/auth/refresh
+// @Summary Refresh access token
+// @Description Refresh access token using refresh token from cookie or body
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body RefreshTokenRequest false "Refresh Token Request"
+// @Success 200 {object} RefreshTokenResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /auth/refresh [post]
 func (s *Server) refreshToken(c echo.Context) error {
 	var refreshToken string
 
@@ -232,6 +261,14 @@ func (s *Server) refreshToken(c echo.Context) error {
 }
 
 // logout handles POST /api/v1/auth/logout
+// @Summary Logout user
+// @Description Logout user and revoke refresh token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body RefreshTokenRequest false "Refresh Token Request"
+// @Success 200 {object} map[string]string
+// @Router /auth/logout [post]
 func (s *Server) logout(c echo.Context) error {
 	var refreshToken string
 
@@ -266,6 +303,16 @@ func (s *Server) logout(c echo.Context) error {
 }
 
 // getCurrentUser handles GET /api/v1/auth/me (requires authentication)
+// @Summary Get current user
+// @Description Get information about the currently logged in user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} UserInfo
+// @Failure 401 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /auth/me [get]
 func (s *Server) getCurrentUser(c echo.Context) error {
 	userID, ok := c.Get(UserContextKey).(string)
 	if !ok {

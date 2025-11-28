@@ -29,6 +29,18 @@ type UserAPIKeyInfo struct {
 }
 
 // createUserAPIKey handles POST /api/v1/user/keys (requires JWT authentication)
+// @Summary Create a user API key
+// @Description Create a new API key for the current user
+// @Tags user_keys
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body CreateUserKeyRequest true "Create User Key Request"
+// @Success 201 {object} CreateUserKeyResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /user/keys [post]
 func (s *Server) createUserAPIKey(c echo.Context) error {
 	// Get user ID from context (set by JWT middleware)
 	userIDStr, ok := c.Get(UserContextKey).(string)
@@ -76,6 +88,17 @@ func (s *Server) createUserAPIKey(c echo.Context) error {
 }
 
 // listUserAPIKeys handles GET /api/v1/user/keys (requires JWT authentication)
+// @Summary List user API keys
+// @Description List all API keys for the current user
+// @Tags user_keys
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} []UserAPIKeyInfo
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /user/keys [get]
 func (s *Server) listUserAPIKeys(c echo.Context) error {
 	// Get user ID from context (set by JWT middleware)
 	userIDStr, ok := c.Get(UserContextKey).(string)
@@ -114,6 +137,20 @@ func (s *Server) listUserAPIKeys(c echo.Context) error {
 }
 
 // deleteUserAPIKey handles DELETE /api/v1/user/keys/:id (requires JWT authentication)
+// @Summary Delete a user API key
+// @Description Delete a user API key by ID
+// @Tags user_keys
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Key ID"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 403 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /user/keys/{id} [delete]
 func (s *Server) deleteUserAPIKey(c echo.Context) error {
 	// Get user ID from context (set by JWT middleware)
 	userIDStr, ok := c.Get(UserContextKey).(string)

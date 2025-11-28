@@ -19,6 +19,11 @@ import (
 	"google.golang.org/grpc"
 )
 
+// @title Control Plane API
+// @version 1.0
+// @description API for the Control Plane service
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
 	// Load configuration
 	cfg := config.LoadConfig()
